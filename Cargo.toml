@@ -2,5 +2,15 @@
 resolver = "2"
 
 members = [
-
+    "crates/config",
+    "crates/errors",
+    "crates/observability",
+    "crates/shared"
 ]
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+authors = ["Marco Antonio Conceicao"]
+
+[workspace.dependencies]
