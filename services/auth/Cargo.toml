@@ -1,0 +1,10 @@
+[package]
+name = "auth"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+config = { path = "../../crates/config" }
+errors = { path = "../../crates/errors" }
+observability = { path = "../../crates/observability" }
+shared = { path = "../../crates/shared" }

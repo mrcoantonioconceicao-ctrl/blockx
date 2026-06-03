@@ -6,7 +6,7 @@ members = [
     "crates/errors",
     "crates/observability",
     "crates/shared"
-]
+, "services/auth"]
 
 [workspace.package]
 edition = "2024"
