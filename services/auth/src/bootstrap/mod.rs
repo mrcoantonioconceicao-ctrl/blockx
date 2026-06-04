@@ -16,7 +16,8 @@ pub fn startup() {
     let repository = InMemoryUserRepository::new();
 
     let user = create_user::execute(
-        "admin@blockx.io".to_string()
+        "admin@blockx.io".to_string(),
+        "123456".to_string(),
     );
 
     repository.save(&user);

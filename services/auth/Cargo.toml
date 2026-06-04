@@ -8,3 +8,6 @@ config = { path = "../../crates/config" }
 errors = { path = "../../crates/errors" }
 observability = { path = "../../crates/observability" }
 shared = { path = "../../crates/shared" }
+
+argon2 = "0.5"
+rand = "0.8"
