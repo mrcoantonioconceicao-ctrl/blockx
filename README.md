@@ -1,207 +1,355 @@
+
 # BlockX
 
-Enterprise-Grade Financial Infrastructure Platform
+Enterprise Financial Infrastructure Platform built in Rust.
 
-BlockX is a next-generation financial infrastructure platform built with Rust, designed to deliver security, auditability, compliance, and scalability for modern financial applications.
-
-The platform follows an enterprise-first architecture, combining deterministic services with intelligent automation to support digital payments, wallet infrastructure, compliance operations, asset tokenization, and financial ecosystems.
+BlockX is a next-generation financial security platform designed with an enterprise-first architecture focused on auditability, security, compliance, scalability, and digital asset infrastructure.
 
 ---
 
 # Vision
 
-Our mission is to build a secure and scalable financial infrastructure capable of supporting:
+BlockX aims to provide the foundational infrastructure required for modern financial systems, digital asset platforms, tokenization services, identity management, compliance operations, and institutional-grade payment solutions.
 
-- Authentication & Identity Management
-- Wallet Infrastructure
-- KYC & Compliance
-- Ledger & Audit Systems
-- Risk Management
-- Financial Operations
-- Digital Asset Infrastructure
-- Asset Tokenization
-- Enterprise Integrations
+The platform is being built from the ground up with a deterministic core architecture, emphasizing:
 
-BlockX is designed with security, transparency, and long-term sustainability as core principles.
-
----
-
-# Architecture
-
-The platform follows a modular monorepo architecture.
-
-```text
-blockx/
-├── apps/
-├── crates/
-│   ├── config
-│   ├── errors
-│   ├── observability
-│   └── shared
-│
-├── services/
-│   └── auth
-│
-├── deployments/
-├── docs/
-└── infrastructure/
-```
-
-Each service is developed independently while sharing common platform foundations.
+- Security by Design
+- Auditability
+- Scalability
+- Compliance Readiness
+- Modular Services
+- Cloud Native Deployment
+- High Performance Rust Services
 
 ---
 
 # Current Development Status
 
-## Sprint 0 — Foundation
+### Phase
 
-Completed:
+Foundation Development
 
-- ✅ Cargo Workspace
-- ✅ Configuration Foundation
-- ✅ Error Handling Foundation
-- ✅ Observability Foundation
-- ✅ Shared Utilities Foundation
+### Current Sprint
+
+Auth Service Evolution
+
+### Progress
+
+#### Sprint 0 — Foundation ✅
+
+- Monorepo structure
+- Workspace configuration
+- Core crates
+- Environment support
+- Shared utilities
+- Error handling
+- Observability foundation
+
+#### Sprint 1 — Platform Foundations ✅
+
+- Config crate
+- Shared crate
+- Errors crate
+- Observability crate
+- GitHub Actions CI
+
+#### Sprint 2 — Auth Service (In Progress) 🚀
+
+Implemented:
+
+- User domain model
+- User creation flow
+- Password hashing
+- Password verification
+- Login flow
+- Repository abstraction
+- In-memory repository
+- Repository lookup by email
+- Unit tests
 
 ---
 
-## Sprint 1 — Auth Service Foundation
+# Current Auth Capabilities
 
-Completed:
+## User Creation
 
-- ✅ User Domain Model
-- ✅ Repository Pattern
-- ✅ In-Memory Repository
-- ✅ UUID Generation
-- ✅ Bootstrap Layer
-- ✅ Service Startup Flow
+Users can be created through the application layer.
 
----
+Features:
 
-## Sprint 2 — Authentication Security
-
-Completed:
-
-- ✅ Password Service
-- ✅ Argon2id Password Hashing
-- ✅ Secure Password Storage
-- ✅ User Creation Flow
-
-In Progress:
-
-- 🔄 Password Verification
-- 🔄 Login Use Case
+- Unique UUID generation
+- Email support
+- Password hashing
+- Domain entity creation
 
 ---
 
-# Roadmap
+## Password Security
 
-## Authentication & IAM
+BlockX uses:
 
-- Password Verification
-- Login Flow
-- JWT Authentication
-- Refresh Tokens
-- Session Management
-- Role-Based Access Control (RBAC)
-- Identity and Access Management (IAM)
+- Argon2id
 
-## Persistence Layer
+Password storage is performed using cryptographic hashing and random salts.
 
-- PostgreSQL Integration
-- SQLx Repositories
-- Database Migrations
-- Repository Implementations
+Example:
 
-## Financial Core
+```text
+$argon2id$v=19$m=19456,t=2,p=1$...
+```
 
-- Wallet Service
-- Transaction Engine
-- Audit Service
-- Ledger Infrastructure
-- Risk Engine
+Passwords are never stored in plaintext.
 
-## Compliance Layer
+---
 
-- KYC Service
-- AML Monitoring
-- Compliance Workflows
-- Regulatory Reporting
+## Login Flow
 
-## Digital Assets
+Current login process:
 
-- Tokenization Service
-- Digital Asset Infrastructure
-- Asset Registry
-- Settlement Services
+1. User lookup by email
+2. Password verification
+3. Authentication result
+
+Implemented in:
+
+```text
+services/auth/src/application/login_user.rs
+```
+
+---
+
+## Repository Pattern
+
+Current repository abstraction:
+
+```rust
+pub trait UserRepository {
+    fn save(&self, user: &User);
+
+    fn find_by_email(
+        &self,
+        email: &str,
+    ) -> Option<User>;
+}
+```
+
+Current implementation:
+
+```text
+InMemoryUserRepository
+```
+
+Future implementation:
+
+```text
+PostgreSQLUserRepository
+```
+
+---
+
+# Architecture
+
+```text
+BlockX
+│
+├── apps
+│
+├── services
+│   └── auth
+│
+├── crates
+│   ├── config
+│   ├── errors
+│   ├── observability
+│   └── shared
+│
+├── infrastructure
+│
+├── deployments
+│
+└── docs
+```
 
 ---
 
 # Technology Stack
 
-Current:
+## Language
 
 - Rust
-- Cargo Workspace
-- Argon2id
-- UUID
-- GitHub Actions
 
-Planned:
+## Backend
 
 - Axum
 - Tokio
+
+## Security
+
+- Argon2id
+
+## Database (Planned)
+
 - PostgreSQL
+
+## ORM
+
 - SQLx
-- OpenTelemetry
+
+## CI/CD
+
+- GitHub Actions
+
+## Containerization (Planned)
+
 - Docker
+
+## Orchestration (Planned)
+
 - Kubernetes
 
 ---
 
-# Engineering Principles
+# Design Principles
 
-BlockX is built around the following principles:
+BlockX follows enterprise engineering principles:
 
-- Security First
-- Auditability by Design
-- Enterprise Scalability
-- Deterministic Core Services
-- Modular Architecture
-- Compliance Ready
-- Cloud Native Infrastructure
-- Long-Term Maintainability
+### Security First
 
----
+Security is treated as a core feature.
 
-# CI/CD
+### Auditability
 
-Continuous Integration is executed through GitHub Actions.
+All critical operations must be traceable.
 
-Current pipeline:
+### Deterministic Core
 
-- Cargo Check
-- Cargo Test
+Business rules must remain predictable and verifiable.
 
-Future pipeline:
+### Modular Architecture
 
-- Clippy
-- Rustfmt
-- Security Scanning
-- Dependency Auditing
-- Automated Releases
+Services evolve independently.
+
+### Infrastructure as Code
+
+Deployments should be automated and reproducible.
 
 ---
 
-# Founders
+# Development Roadmap
 
-- Marco Antônio Conceição
-- Saulo
+## Auth Service
+
+- [x] User Entity
+- [x] Create User
+- [x] Password Hashing
+- [x] Password Verification
+- [x] Login Flow
+- [x] Repository Lookup
+- [ ] JWT Authentication
+- [ ] Access Tokens
+- [ ] Refresh Tokens
+- [ ] RBAC
+- [ ] Session Management
+- [ ] PostgreSQL Persistence
 
 ---
 
-# Ownership
+## IAM
 
-BlockX is a proprietary project developed by its founders.
+- [ ] Roles
+- [ ] Permissions
+- [ ] Multi-Tenant Support
+- [ ] Organization Management
+
+---
+
+## Wallet
+
+- [ ] Wallet Service
+- [ ] Asset Storage
+- [ ] Transaction History
+
+---
+
+## KYC
+
+- [ ] Identity Verification
+- [ ] Compliance Workflow
+- [ ] Risk Classification
+
+---
+
+## Ledger
+
+- [ ] Double Entry Accounting
+- [ ] Audit Trail
+- [ ] Financial Reconciliation
+
+---
+
+## Tokenization
+
+- [ ] Digital Assets
+- [ ] RWA Support
+- [ ] Compliance Controls
+
+---
+
+# Quality Assurance
+
+Current automated validation:
+
+```bash
+cargo check
+cargo test
+```
+
+GitHub Actions executes validation automatically on every push.
+
+---
+
+# Contributors
+
+## Marco Antônio Conceição
+
+Co-Founder
+
+Responsible for:
+
+- Product Vision
+- Platform Architecture
+- Infrastructure Strategy
+
+---
+
+## Saulo
+
+Co-Founder
+
+Responsible for:
+
+- Product Development
+- Engineering Collaboration
+- Platform Evolution
+
+---
+
+# Repository
+
+GitHub:
+
+https://github.com/mrcoantonioconceicao-ctrl/blockx
+
+---
+
+# License
+
+Private Project
 
 All rights reserved.
+
+---
+
+# BlockX
+
+Building the infrastructure layer for secure digital finance.
