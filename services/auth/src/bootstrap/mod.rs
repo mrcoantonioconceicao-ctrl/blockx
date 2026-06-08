@@ -2,6 +2,7 @@ use shared::time::now;
 
 use crate::api;
 use crate::application::create_user;
+use crate::application::login_user;
 use crate::infrastructure::in_memory_user_repository::InMemoryUserRepository;
 use crate::infrastructure::user_repository::UserRepository;
 
@@ -21,6 +22,17 @@ pub fn startup() {
     );
 
     repository.save(&user);
+
+    let authenticated =
+        login_user::execute(
+            &user,
+            "123456",
+        );
+
+    println!(
+        "Authentication result: {}",
+        authenticated
+    );
 
     println!("User created: {:?}", user);
 }
