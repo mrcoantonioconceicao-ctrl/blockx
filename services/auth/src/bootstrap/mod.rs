@@ -23,16 +23,18 @@ pub fn startup() {
 
     repository.save(&user);
 
-    let authenticated =
-        login_user::execute(
-            &user,
-            "123456",
-        );
-
-    println!(
-        "Authentication result: {}",
-        authenticated
+    let token = login_user::execute(
+        &user,
+        "123456",
     );
 
-    println!("User created: {:?}", user);
+    println!(
+        "Authentication result: {:?}",
+        token
+    );
+
+    println!(
+        "User created: {:?}",
+        user
+    );
 }
