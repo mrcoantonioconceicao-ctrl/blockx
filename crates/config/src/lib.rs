@@ -22,6 +22,9 @@ pub struct AppConfig {
     pub app_name: String,
     pub app_env: Environment,
     pub app_port: u16,
+
+    pub jwt_secret: String,
+    pub jwt_expiration_seconds: usize,
 }
 
 impl AppConfig {
@@ -42,10 +45,24 @@ impl AppConfig {
                 .parse::<u16>()
                 .unwrap_or(8080);
 
+        let jwt_secret =
+            std::env::var("JWT_SECRET")
+                .unwrap_or_else(|_| {
+                    "blockx-development-secret".to_string()
+                });
+
+        let jwt_expiration_seconds =
+            std::env::var("JWT_EXPIRATION_SECONDS")
+                .unwrap_or_else(|_| "3600".to_string())
+                .parse::<usize>()
+                .unwrap_or(3600);
+
         Self {
             app_name,
             app_env: Environment::from_str(&app_env),
             app_port,
+            jwt_secret,
+            jwt_expiration_seconds,
         }
     }
 }

@@ -1,3 +1,5 @@
+use config::AppConfig;
+
 use jsonwebtoken::{
     decode,
     encode,
@@ -24,12 +26,11 @@ pub struct Claims {
     pub exp: usize,
 }
 
-const JWT_SECRET: &[u8] =
-    b"blockx-development-secret";
-
 pub fn generate_token(
     user_id: &str,
 ) -> String {
+    let config = AppConfig::load();
+
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
@@ -38,14 +39,15 @@ pub fn generate_token(
     let claims = Claims {
         sub: user_id.to_string(),
         iat: now,
-        exp: now + 3600,
+        exp: now
+            + config.jwt_expiration_seconds,
     };
 
     encode(
         &Header::default(),
         &claims,
         &EncodingKey::from_secret(
-            JWT_SECRET,
+            config.jwt_secret.as_bytes(),
         ),
     )
     .expect(
@@ -56,10 +58,12 @@ pub fn generate_token(
 pub fn validate_token(
     token: &str,
 ) -> Option<Claims> {
+    let config = AppConfig::load();
+
     decode::<Claims>(
         token,
         &DecodingKey::from_secret(
-            JWT_SECRET,
+            config.jwt_secret.as_bytes(),
         ),
         &Validation::default(),
     )
