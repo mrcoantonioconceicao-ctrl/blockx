@@ -18,7 +18,9 @@ impl InMemoryUserRepository {
 }
 
 impl UserRepository for InMemoryUserRepository {
+
     fn save(&self, user: &User) {
+
         let mut users =
             self.users.lock().unwrap();
 
@@ -37,19 +39,33 @@ impl UserRepository for InMemoryUserRepository {
         &self,
         email: &str,
     ) -> Option<User> {
+
         let users =
             self.users.lock().unwrap();
 
         users.get(email).cloned()
     }
+
+    fn exists(
+        &self,
+        email: &str,
+    ) -> bool {
+
+        let users =
+            self.users.lock().unwrap();
+
+        users.contains_key(email)
+    }
 }
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]
     fn should_save_and_find_user() {
+
         let repository =
             InMemoryUserRepository::new();
 
@@ -78,6 +94,33 @@ mod tests {
         assert_eq!(
             found.id,
             "1"
+        );
+    }
+
+    #[test]
+    fn should_check_user_exists() {
+
+        let repository =
+            InMemoryUserRepository::new();
+
+        let user = User {
+            id: "1".to_string(),
+            email: "admin@blockx.io".to_string(),
+            password_hash: "hash".to_string(),
+        };
+
+        repository.save(&user);
+
+        assert!(
+            repository.exists(
+                "admin@blockx.io"
+            )
+        );
+
+        assert!(
+            !repository.exists(
+                "unknown@blockx.io"
+            )
         );
     }
 }
