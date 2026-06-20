@@ -1,96 +1,176 @@
-
 # BlockX
 
-Enterprise Financial Infrastructure Platform built in Rust.
+**Enterprise Financial Infrastructure Platform built in Rust**
 
-BlockX is a next-generation financial security platform designed with an enterprise-first architecture focused on auditability, security, compliance, scalability, and digital asset infrastructure.
+BlockX is a next-generation financial infrastructure and security platform designed for institutions, fintechs, payment providers, and digital asset ecosystems.
+
+The platform is being built from the ground up with a **deterministic core**, emphasizing:
+
+- Security by Design
+- Auditability
+- Compliance Readiness
+- Scalability
+- Modular Services
+- Cloud-Native Architecture
+- High Performance with Rust
 
 ---
 
 # Vision
 
-BlockX aims to provide the foundational infrastructure required for modern financial systems, digital asset platforms, tokenization services, identity management, compliance operations, and institutional-grade payment solutions.
+BlockX aims to provide the foundational infrastructure required for:
 
-The platform is being built from the ground up with a deterministic core architecture, emphasizing:
+- Identity and Access Management (IAM)
+- Authentication and Authorization
+- Digital Wallets
+- KYC / KYB
+- Financial Ledger
+- Payment Gateway Infrastructure
+- Risk Management
+- Audit and Compliance
+- Tokenization of Digital and Real-World Assets (RWA)
 
-- Security by Design
-- Auditability
-- Scalability
-- Compliance Readiness
-- Modular Services
-- Cloud Native Deployment
-- High Performance Rust Services
+The architecture separates deterministic business logic from future intelligent orchestration layers, ensuring predictability, security, and auditability.
+
+---
+
+# Architecture Principles
+
+BlockX follows enterprise engineering principles:
+
+### Security First
+
+Security is treated as a core feature.
+
+### Deterministic Core
+
+Business rules must remain predictable, auditable, and reproducible.
+
+### Auditability
+
+Critical operations must be traceable.
+
+### Service Oriented Architecture (SOA)
+
+Each service evolves independently.
+
+### Clean Architecture
+
+Application, Domain, Infrastructure, and Interface layers are separated.
+
+### Domain Driven Design (DDD)
+
+Business domains are isolated and modeled independently.
+
+### BPMN Ready
+
+Future business workflows will be modeled using BPMN, especially for:
+
+- Onboarding
+- KYC
+- Risk Analysis
+- Payments
+- Compliance
+- Tokenization
 
 ---
 
 # Current Development Status
 
-### Phase
+## Sprint 0 — Foundation ✅
 
-Foundation Development
-
-### Current Sprint
-
-Auth Service Evolution
-
-### Progress
-
-#### Sprint 0 — Foundation ✅
-
-- Monorepo structure
-- Workspace configuration
-- Core crates
-- Environment support
-- Shared utilities
-- Error handling
-- Observability foundation
-
-#### Sprint 1 — Platform Foundations ✅
-
-- Config crate
-- Shared crate
-- Errors crate
-- Observability crate
-- GitHub Actions CI
-
-#### Sprint 2 — Auth Service (In Progress) 🚀
-
-Implemented:
-
-- User domain model
-- User creation flow
-- Password hashing
-- Password verification
-- Login flow
-- Repository abstraction
-- In-memory repository
-- Repository lookup by email
-- Unit tests
+- Monorepo Structure
+- Cargo Workspace
+- Shared Crates
+- Environment Configuration
+- Error Handling
+- Observability Foundation
 
 ---
 
-# Current Auth Capabilities
+## Sprint 1 — Platform Foundation ✅
+
+### Crates
+
+#### Config
+
+Application configuration.
+
+#### Shared
+
+Common utilities.
+
+#### Errors
+
+Centralized error handling.
+
+#### Observability
+
+Logging, tracing and audit foundation.
+
+---
+
+## Sprint 2 — Auth Service 🚀
+
+### Implemented
+
+✅ User Domain Model
+
+✅ User Creation
+
+✅ Email Validation
+
+✅ Password Validation
+
+✅ Argon2id Password Hashing
+
+✅ Password Verification
+
+✅ Login Flow
+
+✅ JWT Token Generation
+
+✅ JWT Token Validation
+
+✅ Duplicate User Protection
+
+✅ User Repository
+
+✅ Find User By Email
+
+✅ Exists User
+
+✅ Configuration through Config crate
+
+✅ Bootstrap Integration
+
+✅ Unit Tests
+
+---
+
+# Authentication Features
 
 ## User Creation
 
-Users can be created through the application layer.
+Users are created through the application layer.
 
 Features:
 
-- Unique UUID generation
-- Email support
+- Unique ID generation
+- Email validation
+- Password validation
 - Password hashing
-- Domain entity creation
+- Duplicate email protection
 
 ---
 
 ## Password Security
 
-BlockX uses:
+BlockX currently uses:
 
-- Argon2id
+### Argon2id
 
-Password storage is performed using cryptographic hashing and random salts.
+Passwords are never stored in plain text.
 
 Example:
 
@@ -98,38 +178,57 @@ Example:
 $argon2id$v=19$m=19456,t=2,p=1$...
 ```
 
-Passwords are never stored in plaintext.
+Features:
+
+- Random Salt
+- Memory Hard
+- GPU Resistant
+- OWASP Recommended
 
 ---
 
-## Login Flow
+## JWT Authentication
 
-Current login process:
+Current implementation:
 
-1. User lookup by email
-2. Password verification
-3. Authentication result
+### Access Token
 
-Implemented in:
+Features:
 
-```text
-services/auth/src/application/login_user.rs
-```
+- User Identification
+- Issued At (iat)
+- Expiration Time (exp)
+- Signature Validation
+
+### Validation
+
+Implemented:
+
+- Token Decoding
+- Signature Verification
+- Invalid Token Rejection
 
 ---
 
-## Repository Pattern
-
-Current repository abstraction:
+# Current Repository Pattern
 
 ```rust
 pub trait UserRepository {
-    fn save(&self, user: &User);
+
+    fn save(
+        &self,
+        user: &User,
+    );
 
     fn find_by_email(
         &self,
         email: &str,
     ) -> Option<User>;
+
+    fn exists(
+        &self,
+        email: &str,
+    ) -> bool;
 }
 ```
 
@@ -139,7 +238,7 @@ Current implementation:
 InMemoryUserRepository
 ```
 
-Future implementation:
+Planned:
 
 ```text
 PostgreSQLUserRepository
@@ -147,15 +246,20 @@ PostgreSQLUserRepository
 
 ---
 
-# Architecture
+# Current Project Structure
 
 ```text
-BlockX
+blockx
 │
 ├── apps
 │
 ├── services
 │   └── auth
+│       ├── api
+│       ├── application
+│       ├── bootstrap
+│       ├── domain
+│       └── infrastructure
 │
 ├── crates
 │   ├── config
@@ -176,141 +280,147 @@ BlockX
 
 ## Language
 
-- Rust
+Rust
+
+---
 
 ## Backend
 
-- Axum
+- Axum (planned)
 - Tokio
+
+---
 
 ## Security
 
 - Argon2id
+- JWT
+- OWASP Security Practices
 
-## Database (Planned)
+---
+
+## Database
+
+Planned:
 
 - PostgreSQL
 
+---
+
 ## ORM
 
+Planned:
+
 - SQLx
+
+---
 
 ## CI/CD
 
 - GitHub Actions
 
-## Containerization (Planned)
+---
+
+## Containerization
+
+Planned:
 
 - Docker
 
-## Orchestration (Planned)
+---
+
+## Orchestration
+
+Planned:
 
 - Kubernetes
 
 ---
 
-# Design Principles
-
-BlockX follows enterprise engineering principles:
-
-### Security First
-
-Security is treated as a core feature.
-
-### Auditability
-
-All critical operations must be traceable.
-
-### Deterministic Core
-
-Business rules must remain predictable and verifiable.
-
-### Modular Architecture
-
-Services evolve independently.
-
-### Infrastructure as Code
-
-Deployments should be automated and reproducible.
-
----
-
-# Development Roadmap
+# Roadmap
 
 ## Auth Service
 
-- [x] User Entity
-- [x] Create User
-- [x] Password Hashing
-- [x] Password Verification
-- [x] Login Flow
-- [x] Repository Lookup
-- [ ] JWT Authentication
-- [ ] Access Tokens
-- [ ] Refresh Tokens
-- [ ] RBAC
-- [ ] Session Management
-- [ ] PostgreSQL Persistence
+- User Entity ✅
+- Create User ✅
+- Password Hashing ✅
+- Login Flow ✅
+- JWT Generation ✅
+- JWT Validation ✅
+- Duplicate User Protection ✅
+- Refresh Tokens 🔄
+- RBAC 🔄
+- Session Management 🔄
+- PostgreSQL Persistence 🔄
 
 ---
 
 ## IAM
 
-- [ ] Roles
-- [ ] Permissions
-- [ ] Multi-Tenant Support
-- [ ] Organization Management
+- Roles
+- Permissions
+- Multi Tenant Support
+- Organization Management
 
 ---
 
 ## Wallet
 
-- [ ] Wallet Service
-- [ ] Asset Storage
-- [ ] Transaction History
+- Wallet Service
+- Asset Storage
+- Transaction History
 
 ---
 
 ## KYC
 
-- [ ] Identity Verification
-- [ ] Compliance Workflow
-- [ ] Risk Classification
+- Identity Verification
+- Compliance Workflow
+- Risk Classification
 
 ---
 
 ## Ledger
 
-- [ ] Double Entry Accounting
-- [ ] Audit Trail
-- [ ] Financial Reconciliation
+- Double Entry Accounting
+- Audit Trail
+- Financial Reconciliation
+
+---
+
+## Payment Gateway
+
+- Payment Processing
+- Merchant Accounts
+- Settlement Engine
+- Transaction Monitoring
 
 ---
 
 ## Tokenization
 
-- [ ] Digital Assets
-- [ ] RWA Support
-- [ ] Compliance Controls
+- Digital Assets
+- RWA Support
+- Compliance Controls
 
 ---
 
 # Quality Assurance
 
-Current automated validation:
+Current validations:
 
 ```bash
 cargo check
 cargo test
 ```
 
-GitHub Actions executes validation automatically on every push.
+GitHub Actions runs validation automatically on every push.
 
 ---
 
 # Contributors
 
-## Marco Antônio Conceição
+## Marco Antonio Conceicao
 
 Co-Founder
 
@@ -336,9 +446,9 @@ Responsible for:
 
 # Repository
 
-GitHub:
+Private Repository
 
-https://github.com/mrcoantonioconceicao-ctrl/blockx
+BlockX is currently under active development.
 
 ---
 
@@ -346,10 +456,10 @@ https://github.com/mrcoantonioconceicao-ctrl/blockx
 
 Private Project
 
-All rights reserved.
+All Rights Reserved.
 
 ---
 
-# BlockX
+## BlockX
 
-Building the infrastructure layer for secure digital finance.
+**Building the infrastructure layer for secure digital finance.**
