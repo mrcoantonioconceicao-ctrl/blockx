@@ -1,5 +1,6 @@
 # BlockX
 
+<<<<<<< HEAD
 **Enterprise Financial Infrastructure Platform built in Rust**
 
 BlockX is a next-generation financial infrastructure and security platform designed for institutions, fintechs, payment providers, and digital asset ecosystems.
@@ -72,11 +73,29 @@ Future business workflows will be modeled using BPMN, especially for:
 - Payments
 - Compliance
 - Tokenization
+=======
+Enterprise Financial Infrastructure Platform built in Rust
 
----
+BlockX is a next-generation financial infrastructure and security platform designed for institutions, fintechs, payment providers, and digital asset ecosystems.
 
-# Current Development Status
+## Core Principles
 
+- Security by Design
+- Deterministic Core
+- Auditability
+- SOA Architecture
+- Clean Architecture
+- DDD
+- BPMN Ready
+- Cloud Native
+>>>>>>> 77d1543 (docs(readme): automatic update)
+
+## Current Status
+
+### Sprint 0
+- Foundation ✅
+
+<<<<<<< HEAD
 ## Sprint 0 — Foundation ✅
 
 - Monorepo Structure
@@ -317,26 +336,75 @@ Planned:
 
 ## CI/CD
 
-- GitHub Actions
+=======
+### Sprint 1
+- Config ✅
+- Shared ✅
+- Errors ✅
+- Observability ✅
 
+### Sprint 2 - Auth Service
+
+Implemented:
+
+- User Creation ✅
+- Email Validation ✅
+- Password Validation ✅
+- Argon2id Hashing ✅
+- Password Verification ✅
+- Login Flow ✅
+- JWT Access Token ✅
+- JWT Validation ✅
+- Refresh Token ✅
+- Refresh Token Validation ✅
+- Duplicate User Protection ✅
+
+## Technology
+
+- Rust
+- Tokio
+- JWT
+- Argon2id
+>>>>>>> 77d1543 (docs(readme): automatic update)
+- GitHub Actions
+- PostgreSQL (planned)
+- SQLx (planned)
+- Docker (planned)
+- Kubernetes (planned)
+
+<<<<<<< HEAD
 ---
 
 ## Containerization
 
 Planned:
+=======
+## Future Modules
+>>>>>>> 77d1543 (docs(readme): automatic update)
 
-- Docker
+- IAM
+- Wallet
+- KYC
+- Ledger
+- Payment Gateway
+- Tokenization
+- Risk Engine
 
+<<<<<<< HEAD
 ---
 
 ## Orchestration
 
 Planned:
+=======
+## Repository
+>>>>>>> 77d1543 (docs(readme): automatic update)
 
-- Kubernetes
+Private Repository
 
----
+BlockX is under active development.
 
+<<<<<<< HEAD
 # Roadmap
 
 ## Auth Service
@@ -463,3 +531,5 @@ All Rights Reserved.
 ## BlockX
 
 **Building the infrastructure layer for secure digital finance.**
+=======
+>>>>>>> 77d1543 (docs(readme): automatic update)
