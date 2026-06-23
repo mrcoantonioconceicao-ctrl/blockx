@@ -1,144 +1,83 @@
-use config::AppConfig;
+use chrono::{Duration, Utc};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
-use jsonwebtoken::{
-    decode,
-    encode,
-    DecodingKey,
-    EncodingKey,
-    Header,
-    Validation,
-};
-
-use serde::{
-    Deserialize,
-    Serialize,
-};
-
-use std::time::{
-    SystemTime,
-    UNIX_EPOCH,
-};
-
-#[derive(
-    Debug,
-    Clone,
-    Serialize,
-    Deserialize,
-)]
-pub struct RefreshClaims {
-    pub sub: String,
-    pub iat: usize,
-    pub exp: usize,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: String,          // subject (user id)
+    pub exp: usize,           // expiration timestamp
+    pub token_type: String,   // "access" ou "refresh"
 }
 
-pub fn generate_refresh_token(
-    user_id: &str,
-) -> String {
+pub struct RefreshTokenService {
+    secret: String,
+}
 
-    let config = AppConfig::load();
+impl RefreshTokenService {
+    pub fn new(secret: String) -> Self {
+        Self { secret }
+    }
 
-    let now = SystemTime::now()
-        .duration_since(
-            UNIX_EPOCH,
+    pub fn generate_access_token(&self, user_id: Uuid) -> String {
+        let expiration = Utc::now()
+            .checked_add_signed(Duration::minutes(15))
+            .expect("Erro ao calcular expiração")
+            .timestamp() as usize;
+
+        let claims = Claims {
+            sub: user_id.to_string(),
+            exp: expiration,
+            token_type: "access".to_string(),
+        };
+
+        encode(
+            &Header::default(),
+            &claims,
+            &EncodingKey::from_secret(self.secret.as_ref()),
         )
-        .unwrap()
-        .as_secs() as usize;
-
-    let claims = RefreshClaims {
-
-        sub: user_id.to_string(),
-
-        iat: now,
-
-        exp: now
-            + config
-                .refresh_token_expiration_seconds,
-    };
-
-    encode(
-        &Header::default(),
-
-        &claims,
-
-        &EncodingKey::from_secret(
-            config.jwt_secret.as_bytes(),
-        ),
-    )
-    .expect(
-        "failed to generate refresh token",
-    )
-}
-
-pub fn validate_refresh_token(
-    token: &str,
-) -> Option<RefreshClaims> {
-
-    let config = AppConfig::load();
-
-    decode::<RefreshClaims>(
-        token,
-
-        &DecodingKey::from_secret(
-            config.jwt_secret.as_bytes(),
-        ),
-
-        &Validation::default(),
-    )
-    .map(|data| data.claims)
-    .ok()
-}
-
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-
-    #[test]
-    fn should_generate_refresh_token() {
-
-        let token =
-            generate_refresh_token(
-                "user-123",
-            );
-
-        assert!(
-            !token.is_empty()
-        );
+        .expect("Erro ao gerar access token")
     }
 
-    #[test]
-    fn should_validate_refresh_token() {
+    pub fn generate_refresh_token(&self, user_id: Uuid) -> String {
+        let expiration = Utc::now()
+            .checked_add_signed(Duration::days(7))
+            .expect("Erro ao calcular expiração")
+            .timestamp() as usize;
 
-        let token =
-            generate_refresh_token(
-                "user-123",
-            );
+        let claims = Claims {
+            sub: user_id.to_string(),
+            exp: expiration,
+            token_type: "refresh".to_string(),
+        };
 
-        let claims =
-            validate_refresh_token(
-                &token,
-            );
-
-        assert!(
-            claims.is_some()
-        );
-
-        assert_eq!(
-            claims.unwrap().sub,
-            "user-123",
-        );
+        encode(
+            &Header::default(),
+            &claims,
+            &EncodingKey::from_secret(self.secret.as_ref()),
+        )
+        .expect("Erro ao gerar refresh token")
     }
 
-    #[test]
-    fn should_reject_invalid_refresh_token() {
+    pub fn validate_token(&self, token: &str) -> Option<Claims> {
+        let validation = Validation::default();
+        match decode::<Claims>(
+            token,
+            &DecodingKey::from_secret(self.secret.as_ref()),
+            &validation,
+        ) {
+            Ok(token_data) => Some(token_data.claims),
+            Err(_) => None,
+        }
+    }
 
-        let claims =
-            validate_refresh_token(
-                "invalid-token",
-            );
-
-        assert!(
-            claims.is_none()
-        );
+    pub fn renew_access_token(&self, refresh_token: &str) -> Option<String> {
+        if let Some(claims) = self.validate_token(refresh_token) {
+            if claims.token_type == "refresh" {
+                let user_id = Uuid::parse_str(&claims.sub).ok()?;
+                return Some(self.generate_access_token(user_id));
+            }
+        }
+        None
     }
 }

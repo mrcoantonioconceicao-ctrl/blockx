@@ -8,4 +8,4 @@ pub fn execute(
     let token = generate_token(&user.id.to_string());
 
     Ok(token)
-}
+

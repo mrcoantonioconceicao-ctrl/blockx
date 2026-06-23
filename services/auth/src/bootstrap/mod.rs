@@ -1,53 +1,23 @@
-use shared::time::now;
+use crate::application::create_user;
+use crate::application::login_user;
+use crate::domain::user::User;
+use crate::infrastructure::in_memory_user_repository::InMemoryUserRepository;
+use crate::infrastructure::user_repository::UserRepository;
 
-use crate::api;
+pub fn run(repository: InMemoryUserRepository) {
 
-use crate::application::{
-    create_user,
-    login_user,
-};
+    // 1. Criar usuário
+    let user: User = create_user::execute(
+        "admin@blockx.io".to_string(),
+        "123456".to_string(),
+    ).expect("create user failed");
 
-use crate::infrastructure::{
-    in_memory_user_repository::InMemoryUserRepository,
-    user_repository::UserRepository,
-};
+    // 2. Persistir usuário
+    UserRepository::save(&repository, &user);
 
-pub fn startup() {
+    // 3. Login
+    let token = login_user::execute(&user)
+        .expect("login failed");
 
-    println!("=================================");
-    println!("BlockX Auth Service");
-    println!("Started at: {}", now());
-    println!("=================================");
-
-    api::register_routes();
-
-    let repository =
-        InMemoryUserRepository::new();
-
-    let user =
-        create_user::execute(
-            &repository,
-            "admin@blockx.io".to_string(),
-            "123456".to_string(),
-        )
-        .unwrap();
-
-    repository.save(&user);
-
-    let token =
-        login_user::execute(
-            &repository,
-            "admin@blockx.io",
-            "123456",
-        );
-
-    println!(
-        "JWT: {:?}",
-        token
-    );
-
-    println!(
-        "User created: {:?}",
-        user
-    );
+    println!("TOKEN: {}", token);
 }
