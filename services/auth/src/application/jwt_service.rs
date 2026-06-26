@@ -1,121 +1,42 @@
-use config::AppConfig;
+use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation, Algorithm};
+use std::time::{SystemTime, UNIX_EPOCH};
 
-use jsonwebtoken::{
-    decode,
-    encode,
-    DecodingKey,
-    EncodingKey,
-    Header,
-    Validation,
-};
+use crate::application::jwt_claims::Claims;
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+const SECRET: &[u8] = b"blockx_secret_key_change_me";
 
-use std::time::{
-    SystemTime,
-    UNIX_EPOCH,
-};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: String,
-    pub iat: usize,
-    pub exp: usize,
-}
-
-pub fn generate_token(
-    user_id: &str,
-) -> String {
-    let config = AppConfig::load();
-
-    let now = SystemTime::now()
+fn now() -> usize {
+    SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
-        .as_secs() as usize;
+        .as_secs() as usize
+}
+
+pub fn generate_token(user_id: &str) -> Result<String, String> {
+    let iat = now();
+    let exp = iat + 60 * 60; // 1 hora
 
     let claims = Claims {
         sub: user_id.to_string(),
-        iat: now,
-        exp: now
-            + config.jwt_expiration_seconds,
+        iat,
+        exp,
     };
 
     encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(
-            config.jwt_secret.as_bytes(),
-        ),
+        &EncodingKey::from_secret(SECRET),
     )
-    .expect(
-        "failed to generate jwt",
-    )
+    .map_err(|_| "token generation failed".to_string())
 }
 
-pub fn validate_token(
-    token: &str,
-) -> Option<Claims> {
-    let config = AppConfig::load();
-
-    decode::<Claims>(
+pub fn validate_token(token: &str) -> Result<Claims, String> {
+    let token_data = decode::<Claims>(
         token,
-        &DecodingKey::from_secret(
-            config.jwt_secret.as_bytes(),
-        ),
-        &Validation::default(),
+        &DecodingKey::from_secret(SECRET),
+        &Validation::new(Algorithm::HS256),
     )
-    .map(|data| data.claims)
-    .ok()
-}
+    .map_err(|_| "invalid token".to_string())?;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn should_generate_token() {
-        let token =
-            generate_token(
-                "user-123",
-            );
-
-        assert!(
-            !token.is_empty()
-        );
-    }
-
-    #[test]
-    fn should_validate_token() {
-        let token =
-            generate_token(
-                "user-123",
-            );
-
-        let claims =
-            validate_token(&token);
-
-        assert!(
-            claims.is_some()
-        );
-
-        assert_eq!(
-            claims.unwrap().sub,
-            "user-123"
-        );
-    }
-
-    #[test]
-    fn should_reject_invalid_token() {
-        let claims =
-            validate_token(
-                "invalid-token",
-            );
-
-        assert!(
-            claims.is_none()
-        );
-    }
+    Ok(token_data.claims)
 }

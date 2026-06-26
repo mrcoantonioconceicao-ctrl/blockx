@@ -10,27 +10,25 @@ use argon2::{
 
 use rand::rngs::OsRng;
 
-pub fn hash_password(password: &str) -> String {
+pub fn hash_password(password: &str) -> Result<String, String> {
     let salt = SaltString::generate(&mut OsRng);
 
     Argon2::default()
         .hash_password(password.as_bytes(), &salt)
-        .expect("failed to hash password")
-        .to_string()
+        .map(|hash| hash.to_string())
+        .map_err(|e| format!("failed to hash password: {}", e))
 }
 
 pub fn verify_password(
     password: &str,
     hash: &str,
 ) -> bool {
-    let parsed_hash = PasswordHash::new(hash);
-
-    match parsed_hash {
-        Ok(hash) => {
+    match PasswordHash::new(hash) {
+        Ok(parsed_hash) => {
             Argon2::default()
                 .verify_password(
                     password.as_bytes(),
-                    &hash,
+                    &parsed_hash,
                 )
                 .is_ok()
         }
@@ -46,29 +44,23 @@ mod tests {
     fn should_verify_correct_password() {
         let password = "123456";
 
-        let hash =
-            hash_password(password);
+        let hash = hash_password(password).unwrap();
 
-        assert!(
-            verify_password(
-                password,
-                &hash
-            )
-        );
+        assert!(verify_password(
+            password,
+            &hash,
+        ));
     }
 
     #[test]
     fn should_reject_invalid_password() {
         let password = "123456";
 
-        let hash =
-            hash_password(password);
+        let hash = hash_password(password).unwrap();
 
-        assert!(
-            !verify_password(
-                "wrong-password",
-                &hash
-            )
-        );
+        assert!(!verify_password(
+            "wrong-password",
+            &hash,
+        ));
     }
 }
