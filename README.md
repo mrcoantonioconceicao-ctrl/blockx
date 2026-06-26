@@ -1,53 +1,136 @@
-BlockX - Auth Service (Rust)
-BlockX Auth Service é um microserviço de autenticação de alta performance construído em Rust utilizando Axum, Clean Architecture e JWT.
-ARQUITETURA
-O sistema segue Clean Architecture com separação clara de camadas:
-API (Axum) ↓ Application Layer (casos de uso) ↓ Domain Layer (regras de negócio) ↓ Infrastructure Layer (repositórios)
-FUNCIONALIDADES
-Registro de usuários com hash seguro de senha (Argon2)
-Login com validação de senha
-Geração de JWT
-Repositório em memória (extensível para PostgreSQL)
-Estrutura baseada em Clean Architecture
-API HTTP assíncrona com Axum
-Separação de responsabilidades (SOA)
-STACK TECNOLÓGICA
-Rust (edição 2024)
-Axum (framework HTTP)
-Tokio (runtime assíncrono)
-Argon2 (hash de senha)
-JSON Web Token (jsonwebtoken)
-Serde (serialização JSON)
-ENDPOINTS DA API
-REGISTRO DE USUÁRIO
+BLOCKX AUTH SERVICE
+
+Overview
+
+This is the authentication service of the BlockX platform.
+It is built in Rust using Axum and follows a clean architecture approach with separation between domain, application, and infrastructure layers.
+
+The service provides secure authentication using JWT access tokens and refresh tokens with rotation and blacklist support.
+
+---
+
+Features
+
+- User registration (email + password)
+- Secure password hashing using Argon2
+- JWT access token generation (1 hour expiration)
+- Refresh token system (7 days expiration)
+- Refresh token rotation (anti replay protection)
+- Refresh token blacklist (revocation system)
+- In-memory user repository (for development)
+- Axum-based REST API
+
+---
+
+Architecture
+
+The system follows a layered architecture:
+
+Domain Layer
+- User entity and business rules
+
+Application Layer
+- Use cases (create_user, login_user, refresh_flow)
+- Authentication services (JWT, password hashing, refresh logic)
+
+Infrastructure Layer
+- In-memory repositories
+- Refresh token store (active + revoked tokens)
+
+State Layer
+- Shared application state using Arc
+
+---
+
+Authentication Flow
+
+1. Register
+- User sends email and password
+- Password is hashed using Argon2
+- User is stored in repository
+
+2. Login
+- User provides credentials
+- System validates user
+- JWT access token is generated
+- Refresh token is generated and stored
+
+3. Refresh Token Flow
+- Client sends refresh token
+- System validates token
+- Token is checked against blacklist
+- Old token is revoked (rotation)
+- New access + refresh tokens are generated
+
+---
+
+API Endpoints
+
 POST /auth/register
-Exemplo de request:
-{ "email": "user@blockx.io", "password": "123456" }
-Resposta:
-{ "user_id": "uuid" }
-LOGIN
+Request:
+{
+  "email": "user@example.com",
+  "password": "123456"
+}
+
+Response:
+{
+  "user_id": "uuid"
+}
+
+---
+
 POST /auth/login
-Exemplo de request:
-{ "email": "user@blockx.io", "password": "123456" }
-Resposta:
-{ "token": "jwt_token" }
-COMO EXECUTAR
-Executar o serviço:
-cargo run -p auth
-O servidor será iniciado em:
-http://0.0.0.0:3000⁠�
-FILOSOFIA DE ARQUITETURA
-Nenhuma regra de negócio dentro da camada HTTP
-Separação estrita de responsabilidades
-Código orientado a domínio
-Sistema stateless (JWT)
-Repositórios substituíveis (in-memory ou banco real)
-MÓDULOS FUTUROS
-Wallet Service
-Ledger (contabilidade dupla)
-KYC Engine
-Risk Engine
-Payment Gateway
-Tokenização de ativos
-STATUS DO PROJETO
-Projeto em desenvolvimento ativo. Base sólida pronta para evolução para sistema financeiro completo.
+Request:
+{
+  "email": "user@example.com",
+  "password": "123456"
+}
+
+Response:
+{
+  "access_token": "...",
+  "refresh_token": "..."
+}
+
+---
+
+POST /auth/refresh
+Request:
+{
+  "refresh_token": "..."
+}
+
+Response:
+{
+  "access_token": "...",
+  "refresh_token": "..."
+}
+
+---
+
+Security Notes
+
+- Passwords are hashed using Argon2
+- JWT tokens are signed using HMAC secret
+- Refresh tokens are rotated on each use
+- Revoked tokens are stored in blacklist
+- Tokens have expiration control
+
+---
+
+Future Improvements
+
+- Replace in-memory storage with PostgreSQL or Redis
+- Add rate limiting for auth endpoints
+- Add device binding for refresh tokens
+- Add audit logging (security events)
+- Add OAuth2 compatibility layer
+
+---
+
+Project: BlockX
+Module: Auth Service
+Language: Rust
+Framework: Axum
+Architecture: Clean Architecture + SOA
