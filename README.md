@@ -1,112 +1,192 @@
-# 🚀 BlockX
+# BlockX
 
-Enterprise-grade modular financial system built in Rust.
+> Plataforma financeira modular construída em Rust com foco em alta performance, segurança, arquitetura empresarial e execução determinística.
 
 ---
 
-# 🧠 Architecture Overview
+# Visão Geral
 
-BlockX is designed using modern backend principles:
+O BlockX é uma plataforma financeira baseada em microsserviços seguindo os princípios de:
 
-- Domain Driven Design (DDD)
 - Clean Architecture
-- Service Oriented Architecture (SOA)
-- Event-driven financial modeling (future-ready)
-
-The goal is to evolve into a **distributed financial core system** with strong guarantees of consistency and auditability.
-
----
-
-# 📦 Services
-
-## 🔐 Auth Service
-
-Responsible for identity and authentication:
-
-- User registration
-- Login flow
-- Password hashing (Argon2)
-- JWT generation and validation
+- Domain-Driven Design (DDD)
+- SOA / Microservices
+- Event Driven (próximas versões)
+- Segurança por padrão
+- Crypto Agility
+- Preparação para criptografia pós-quântica
 
 ---
 
-## 💰 Wallet Service (Active)
+# Arquitetura Atual
 
-A core financial wallet system.
+```
+                    BlockX
 
-### Features
+        +-------------------------+
+        |        API Gateway      |
+        +-----------+-------------+
+                    |
+    +---------------+----------------+
+    |               |                |
+    ▼               ▼                ▼
 
-- Wallet creation per user
-- Credit (deposit funds)
-- Debit (withdraw funds with validation)
-- Balance tracking
-- Status lifecycle:
-  - Active
-  - Frozen
-  - Closed
+ Auth Service   Wallet Service   Ledger Service
+     │               │                │
+ JWT / IAM      Carteiras       Livro Contábil
+ Refresh        Saldos           Auditoria
 
-### Architecture
-
-- Domain Layer → Wallet entity and rules
-- Application Layer → WalletService (business logic)
-- Infrastructure Layer → In-memory repository
-- API Layer → Axum HTTP server
-
-### Running
-
-http://localhost:4001
+```
 
 ---
 
-# 🧱 Workspace Structure
-blockx/ ├── services/ │   ├── auth/ │   └── wallet/ ├── crates/ │   ├── config/ │   ├── errors/ │   ├── observability/ │   └── shared/ ├── infrastructure/ ├── docs/ ├── scripts/
+# Serviços Implementados
+
+## Auth Service
+
+Status:
+
+- ✅ Registro de usuários
+- ✅ Login
+- ✅ JWT
+- ✅ Refresh Token
+- ✅ Repositório em memória
+- ✅ Clean Architecture
 
 ---
 
-# 🧩 Core Principles
+## Wallet Service
 
-- Explicit domain modeling
-- Separation of concerns
-- Stateless application services
-- Repository abstraction for persistence
-- Memory-first implementation (ready for Postgres upgrade)
+Status:
+
+- ✅ Criação de Wallet
+- ✅ Estrutura de domínio
+- ✅ Repositório em memória
+- ✅ Serviço de aplicação
+- ✅ API HTTP
 
 ---
 
-# 🚀 Roadmap
+## Ledger Service
 
-## Phase 1 — Core Services (current)
-- Auth Service
-- Wallet Service
+Status:
 
-## Phase 2 — Financial Core
-- Ledger (double-entry accounting system)
-- Transaction immutability layer
-- Audit log engine
+- ✅ LedgerEntry
+- ✅ LedgerRepository
+- ✅ InMemoryLedgerRepository
+- ✅ LedgerService
+- ✅ API HTTP
+- ✅ Registro de lançamentos
+- ✅ Consulta de lançamentos
 
-## Phase 3 — Platform Layer
+---
+
+# Estrutura do Projeto
+
+```
+blockx/
+
+crates/
+config/
+errors/
+observability/
+shared/
+
+services/
+
+auth/
+wallet/
+ledger/
+
+docs/
+scripts/
+deployments/
+infrastructure/
+```
+
+---
+
+# Roadmap
+
+## Fase Atual
+
+- ✅ Auth
+- ✅ Wallet
+- ✅ Ledger
+
+---
+
+## Próximos Serviços
+
+- KYC
+- IAM
 - Risk Engine
+- Audit
+- Notification
+- Tokenization
+- Gateway Cripto
+- Payment Gateway
+- PIX
+- Open Finance
+
+---
+
+# Objetivos
+
+O BlockX está sendo desenvolvido para servir como base para:
+
+- Banco Digital
+- Banking as a Service (BaaS)
+- Embedded Finance
+- Gateway de Pagamentos
+- Gateway Cripto
+- Carteiras Digitais
+- Stablecoins
+- Tokenização de Ativos
+- Open Finance
+
+---
+
+# Tecnologias
+
+- Rust
+- Axum
+- Tokio
+- UUID
+- Serde
+- Chrono
+
+---
+
+# Arquitetura
+
+- Clean Architecture
+- DDD
+- SOLID
+- Repository Pattern
+- Service Layer
+- Dependency Inversion
+
+---
+
+# Próximos Marcos
+
+- Double Entry Accounting
+- PostgreSQL
+- CockroachDB
 - Event Bus
-- ORION orchestration layer
-
-## Phase 4 — Distributed Systems
-- PostgreSQL persistence
-- Message queues
-- Distributed consistency
-
----
-
-# 🧪 Status
-
-| Service | Status |
-|--------|--------|
-| Auth   | ✅ Active |
-| Wallet | ✅ Active |
-| Ledger | ⏳ Next |
-| ORION  | ⏳ Planned |
+- Kafka/NATS
+- gRPC
+- Observabilidade
+- Kubernetes
+- Alta Disponibilidade
 
 ---
 
-# 👤 Author
+# Licença
 
-Marco Antonio Conceicao
+MIT
+
+---
+
+Desenvolvido como parte do ecossistema **BlockX**.
