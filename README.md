@@ -1,136 +1,112 @@
-BLOCKX AUTH SERVICE
+# 🚀 BlockX
 
-Overview
-
-This is the authentication service of the BlockX platform.
-It is built in Rust using Axum and follows a clean architecture approach with separation between domain, application, and infrastructure layers.
-
-The service provides secure authentication using JWT access tokens and refresh tokens with rotation and blacklist support.
+Enterprise-grade modular financial system built in Rust.
 
 ---
 
-Features
+# 🧠 Architecture Overview
 
-- User registration (email + password)
-- Secure password hashing using Argon2
-- JWT access token generation (1 hour expiration)
-- Refresh token system (7 days expiration)
-- Refresh token rotation (anti replay protection)
-- Refresh token blacklist (revocation system)
-- In-memory user repository (for development)
-- Axum-based REST API
+BlockX is designed using modern backend principles:
 
----
+- Domain Driven Design (DDD)
+- Clean Architecture
+- Service Oriented Architecture (SOA)
+- Event-driven financial modeling (future-ready)
 
-Architecture
-
-The system follows a layered architecture:
-
-Domain Layer
-- User entity and business rules
-
-Application Layer
-- Use cases (create_user, login_user, refresh_flow)
-- Authentication services (JWT, password hashing, refresh logic)
-
-Infrastructure Layer
-- In-memory repositories
-- Refresh token store (active + revoked tokens)
-
-State Layer
-- Shared application state using Arc
+The goal is to evolve into a **distributed financial core system** with strong guarantees of consistency and auditability.
 
 ---
 
-Authentication Flow
+# 📦 Services
 
-1. Register
-- User sends email and password
-- Password is hashed using Argon2
-- User is stored in repository
+## 🔐 Auth Service
 
-2. Login
-- User provides credentials
-- System validates user
-- JWT access token is generated
-- Refresh token is generated and stored
+Responsible for identity and authentication:
 
-3. Refresh Token Flow
-- Client sends refresh token
-- System validates token
-- Token is checked against blacklist
-- Old token is revoked (rotation)
-- New access + refresh tokens are generated
+- User registration
+- Login flow
+- Password hashing (Argon2)
+- JWT generation and validation
 
 ---
 
-API Endpoints
+## 💰 Wallet Service (Active)
 
-POST /auth/register
-Request:
-{
-  "email": "user@example.com",
-  "password": "123456"
-}
+A core financial wallet system.
 
-Response:
-{
-  "user_id": "uuid"
-}
+### Features
 
----
+- Wallet creation per user
+- Credit (deposit funds)
+- Debit (withdraw funds with validation)
+- Balance tracking
+- Status lifecycle:
+  - Active
+  - Frozen
+  - Closed
 
-POST /auth/login
-Request:
-{
-  "email": "user@example.com",
-  "password": "123456"
-}
+### Architecture
 
-Response:
-{
-  "access_token": "...",
-  "refresh_token": "..."
-}
+- Domain Layer → Wallet entity and rules
+- Application Layer → WalletService (business logic)
+- Infrastructure Layer → In-memory repository
+- API Layer → Axum HTTP server
+
+### Running
+
+http://localhost:4001
 
 ---
 
-POST /auth/refresh
-Request:
-{
-  "refresh_token": "..."
-}
-
-Response:
-{
-  "access_token": "...",
-  "refresh_token": "..."
-}
+# 🧱 Workspace Structure
+blockx/ ├── services/ │   ├── auth/ │   └── wallet/ ├── crates/ │   ├── config/ │   ├── errors/ │   ├── observability/ │   └── shared/ ├── infrastructure/ ├── docs/ ├── scripts/
 
 ---
 
-Security Notes
+# 🧩 Core Principles
 
-- Passwords are hashed using Argon2
-- JWT tokens are signed using HMAC secret
-- Refresh tokens are rotated on each use
-- Revoked tokens are stored in blacklist
-- Tokens have expiration control
-
----
-
-Future Improvements
-
-- Replace in-memory storage with PostgreSQL or Redis
-- Add rate limiting for auth endpoints
-- Add device binding for refresh tokens
-- Add audit logging (security events)
-- Add OAuth2 compatibility layer
+- Explicit domain modeling
+- Separation of concerns
+- Stateless application services
+- Repository abstraction for persistence
+- Memory-first implementation (ready for Postgres upgrade)
 
 ---
 
-Project: BlockX
-Module: Auth Service
-Language: Rust
-Framework: Axum
-Architecture: Clean Architecture + SOA
+# 🚀 Roadmap
+
+## Phase 1 — Core Services (current)
+- Auth Service
+- Wallet Service
+
+## Phase 2 — Financial Core
+- Ledger (double-entry accounting system)
+- Transaction immutability layer
+- Audit log engine
+
+## Phase 3 — Platform Layer
+- Risk Engine
+- Event Bus
+- ORION orchestration layer
+
+## Phase 4 — Distributed Systems
+- PostgreSQL persistence
+- Message queues
+- Distributed consistency
+
+---
+
+# 🧪 Status
+
+| Service | Status |
+|--------|--------|
+| Auth   | ✅ Active |
+| Wallet | ✅ Active |
+| Ledger | ⏳ Next |
+| ORION  | ⏳ Planned |
+
+---
+
+# 👤 Author
+
+Marco Antonio Conceicao
