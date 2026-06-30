@@ -1,13 +1,13 @@
 use crate::application::password_service::hash_password;
 use crate::domain::user::User;
-use crate::application::auth_error::AuthError;
 
 pub fn execute(
     email: String,
     password: String,
-) -> Result<User, AuthError> {
+) -> Result<User, String> {
 
-    let password_hash = hash_password(&password);
+    let password_hash = hash_password(&password)
+        .map_err(|e| e.to_string())?;
 
     let user = User::new(
         email,

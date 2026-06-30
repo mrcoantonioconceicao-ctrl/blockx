@@ -3,7 +3,6 @@ use axum::{
     Router,
     Json,
     extract::State,
-    response::IntoResponse,
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
@@ -17,7 +16,7 @@ mod state;
 
 use state::AppState;
 use crate::application::{create_user, login_user};
-use crate::application::refresh_flow;
+use crate::infrastructure::user_repository::UserRepository;
 
 #[derive(Deserialize)]
 struct RegisterRequest {
@@ -31,106 +30,57 @@ struct LoginRequest {
     password: String,
 }
 
-#[derive(Deserialize)]
-struct RefreshRequest {
-    refresh_token: String,
-}
-
 #[derive(Serialize)]
 struct RegisterResponse {
     user_id: String,
 }
 
+#[derive(Serialize)]
+struct LoginResponse {
+    token: String,
+}
+
 async fn register(
     State(state): State<AppState>,
     Json(payload): Json<RegisterRequest>,
-) -> impl IntoResponse {
+) -> Json<RegisterResponse> {
 
-    let user = match create_user::execute(payload.email, payload.password) {
-        Ok(u) => u,
-        Err(_) => {
-            return (
-                axum::http::StatusCode::BAD_REQUEST,
-                Json("failed to create user"),
-            );
-        }
-    };
+    let user = create_user::execute(
+        payload.email,
+        payload.password,
+    ).expect("create user failed");
 
     state.repository.save(&user);
 
-    (
-        axum::http::StatusCode::CREATED,
-        Json(RegisterResponse {
-            user_id: user.id,
-        }),
-    )
+    Json(RegisterResponse {
+        user_id: user.id.to_string(),
+    })
 }
 
 async fn login(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
-) -> impl IntoResponse {
+) -> Json<LoginResponse> {
 
-    let user = match state.repository.find_by_email(&payload.email) {
-        Some(u) => u,
-        None => {
-            return (
-                axum::http::StatusCode::UNAUTHORIZED,
-                Json("invalid credentials"),
-            );
-        }
-    };
+    let user = state.repository
+        .find_by_email(&payload.email)
+        .expect("user not found");
 
-    match login_user::execute(&user) {
-        Ok(tokens) => {
-            // salva refresh token no store (IMPORTANTE)
-            state.refresh_store.save(crate::application::refresh_token_model::RefreshToken {
-                token: tokens.refresh_token.clone(),
-                user_id: user.id.clone(),
-                exp: 0, // já controlado no service
-            });
+    let token = login_user::execute(&user)
+        .expect("login failed");
 
-            (
-                axum::http::StatusCode::OK,
-                Json(tokens),
-            )
-        }
-        Err(_) => (
-            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-            Json("login failed"),
-        ),
-    }
-}
-
-async fn refresh(
-    State(state): State<AppState>,
-    Json(payload): Json<RefreshRequest>,
-) -> impl IntoResponse {
-
-    match refresh_flow::execute(
-        &state.refresh_store,
-        &payload.refresh_token,
-    ) {
-        Ok(tokens) => (
-            axum::http::StatusCode::OK,
-            Json(tokens),
-        ),
-        Err(e) => (
-            axum::http::StatusCode::UNAUTHORIZED,
-            Json(e),
-        ),
-    }
+    Json(LoginResponse {
+        token: token,
+    })
 }
 
 #[tokio::main]
 async fn main() {
-
     let state = AppState::new();
 
     let app = Router::new()
         .route("/auth/register", post(register))
         .route("/auth/login", post(login))
-        .route("/auth/refresh", post(refresh))
         .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
@@ -138,9 +88,7 @@ async fn main() {
     println!("Auth running on {}", addr);
 
     axum::serve(
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .unwrap(),
+        tokio::net::TcpListener::bind(addr).await.unwrap(),
         app,
     )
     .await
