@@ -1,9 +1,6 @@
-use crate::domain::ledger_entry::LedgerEntry;
-use crate::infrastructure::ledger_repository::LedgerRepository;
+use crate::domain::{Journal, LedgerEntry};
+use crate::infrastructure::LedgerRepository;
 
-/// Serviço responsável pelos casos de uso do Ledger.
-///
-/// Toda movimentação financeira deve passar por esta camada.
 #[derive(Clone)]
 pub struct LedgerService<R>
 where
@@ -20,38 +17,32 @@ where
         Self { repository }
     }
 
-    /// Registra um novo lançamento contábil.
-    pub fn record_entry(
+    pub fn post_journal(
         &self,
-        debit_account: String,
-        credit_account: String,
-        amount: f64,
-        currency: String,
-        description: String,
-    ) -> LedgerEntry {
-        let entry = LedgerEntry::new(
-            debit_account,
-            credit_account,
-            amount,
-            currency,
-            description,
-        );
+        journal: Journal,
+    ) -> Result<(), String> {
+        if !journal.is_balanced() {
+            return Err(
+                "Journal is not balanced (debits must equal credits)"
+                    .to_string(),
+            );
+        }
 
-        self.repository.save(entry.clone());
+        for entry in journal.entries {
+            self.repository.save(entry);
+        }
 
-        entry
+        Ok(())
     }
 
-    /// Retorna todos os lançamentos.
-    pub fn all_entries(&self) -> Vec<LedgerEntry> {
+    pub fn list_entries(&self) -> Vec<LedgerEntry> {
         self.repository.find_all()
     }
 
-    /// Retorna o histórico de uma conta.
     pub fn account_history(
         &self,
-        account: &str,
+        account_id: String,
     ) -> Vec<LedgerEntry> {
-        self.repository.find_by_account(account)
+        self.repository.find_by_account(&account_id)
     }
 }
