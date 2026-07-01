@@ -1,192 +1,187 @@
 # BlockX
 
-> Plataforma financeira modular construída em Rust com foco em alta performance, segurança, arquitetura empresarial e execução determinística.
+> Enterprise Financial Platform written in Rust, built with SOA, Clean Architecture and Domain-Driven Design.
 
 ---
 
-# Visão Geral
+# Vision
 
-O BlockX é uma plataforma financeira baseada em microsserviços seguindo os princípios de:
+BlockX is becoming a modular financial platform capable of powering:
 
-- Clean Architecture
-- Domain-Driven Design (DDD)
-- SOA / Microservices
-- Event Driven (próximas versões)
-- Segurança por padrão
-- Crypto Agility
-- Preparação para criptografia pós-quântica
+- Digital Wallets
+- Banking as a Service (BaaS)
+- Embedded Finance
+- Crypto Payment Gateway
+- Tokenization
+- Risk Management
+- Compliance
+- Audit
+- Ledger
+- Future Open Finance integrations
+
+The project is designed as a long-term enterprise platform rather than a simple banking application.
 
 ---
 
-# Arquitetura Atual
+# Current Architecture
 
 ```
-                    BlockX
+                BlockX Platform
 
-        +-------------------------+
-        |        API Gateway      |
-        +-----------+-------------+
-                    |
-    +---------------+----------------+
-    |               |                |
-    ▼               ▼                ▼
-
- Auth Service   Wallet Service   Ledger Service
-     │               │                │
- JWT / IAM      Carteiras       Livro Contábil
- Refresh        Saldos           Auditoria
-
+                      API Gateway
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+     Auth Service      Wallet Service    Ledger Service
+        │                  │                  │
+        │                  │                  │
+        └────────────── HTTP ────────────────┘
+                           │
+                    Future Database
+              PostgreSQL / CockroachDB
 ```
 
 ---
 
-# Serviços Implementados
-
-## Auth Service
-
-Status:
-
-- ✅ Registro de usuários
-- ✅ Login
-- ✅ JWT
-- ✅ Refresh Token
-- ✅ Repositório em memória
-- ✅ Clean Architecture
-
----
-
-## Wallet Service
-
-Status:
-
-- ✅ Criação de Wallet
-- ✅ Estrutura de domínio
-- ✅ Repositório em memória
-- ✅ Serviço de aplicação
-- ✅ API HTTP
-
----
-
-## Ledger Service
-
-Status:
-
-- ✅ LedgerEntry
-- ✅ LedgerRepository
-- ✅ InMemoryLedgerRepository
-- ✅ LedgerService
-- ✅ API HTTP
-- ✅ Registro de lançamentos
-- ✅ Consulta de lançamentos
-
----
-
-# Estrutura do Projeto
+# Workspace
 
 ```
 blockx/
 
 crates/
-config/
-errors/
-observability/
-shared/
+├── shared
+├── config
+├── observability
+└── errors
 
 services/
-
-auth/
-wallet/
-ledger/
-
-docs/
-scripts/
-deployments/
-infrastructure/
+├── auth
+├── wallet
+├── ledger
+├── gateway (planned)
+├── risk (planned)
+├── audit (planned)
+├── iam (planned)
+├── kyc (planned)
+└── tokenization (planned)
 ```
 
 ---
 
-# Roadmap
+# Services
 
-## Fase Atual
+## Auth
 
-- ✅ Auth
-- ✅ Wallet
-- ✅ Ledger
+Responsible for:
+
+- Registration
+- Login
+- Password Hashing
+- JWT
+- Refresh Token
 
 ---
 
-## Próximos Serviços
+## Wallet
 
-- KYC
-- IAM
+Responsible for:
+
+- Wallet creation
+- Wallet management
+- Currency ownership
+- Wallet state
+
+Current status:
+
+Wallet still maintains balances locally.
+
+Future state:
+
+Wallet will become a consumer of the Ledger Service, no longer updating balances directly.
+
+---
+
+## Ledger
+
+The Ledger is becoming the financial core of BlockX.
+
+Responsibilities:
+
+- Double-entry accounting
+- Journals
+- Debit/Credit entries
+- Atomic transactions
+- Immutable financial history
+
+Future responsibilities:
+
+- Chart of Accounts
+- Posting engine
+- Accounting validation
+- Settlement support
+
+---
+
+# Architectural Evolution
+
+Current
+
+```
+Wallet
+    │
+updates balance
+```
+
+Future
+
+```
+Wallet
+    │
+HTTP
+    ▼
+Ledger
+    │
+creates Journal
+    │
+validates Double Entry
+    │
+persists accounting entries
+    │
+returns success
+    │
+Wallet refreshes balance
+```
+
+---
+
+# Next Milestones
+
+- Ledger REST API
+- Journal endpoints
+- Chart of Accounts
+- Atomic Transactions
+- Wallet → Ledger integration
+- PostgreSQL persistence
+- Crypto Gateway integration
+- Event Bus
+- Audit Service
 - Risk Engine
-- Audit
-- Notification
-- Tokenization
-- Gateway Cripto
-- Payment Gateway
-- PIX
-- Open Finance
 
 ---
 
-# Objetivos
-
-O BlockX está sendo desenvolvido para servir como base para:
-
-- Banco Digital
-- Banking as a Service (BaaS)
-- Embedded Finance
-- Gateway de Pagamentos
-- Gateway Cripto
-- Carteiras Digitais
-- Stablecoins
-- Tokenização de Ativos
-- Open Finance
-
----
-
-# Tecnologias
+# Principles
 
 - Rust
-- Axum
-- Tokio
-- UUID
-- Serde
-- Chrono
-
----
-
-# Arquitetura
-
+- SOA
 - Clean Architecture
 - DDD
-- SOLID
-- Repository Pattern
-- Service Layer
-- Dependency Inversion
+- CQRS (future)
+- Event Driven Architecture (future)
+- Crypto Agility
+- Post-Quantum Ready
 
 ---
 
-# Próximos Marcos
+# Long-Term Goal
 
-- Double Entry Accounting
-- PostgreSQL
-- CockroachDB
-- Event Bus
-- Kafka/NATS
-- gRPC
-- Observabilidade
-- Kubernetes
-- Alta Disponibilidade
-
----
-
-# Licença
-
-MIT
-
----
-
-Desenvolvido como parte do ecossistema **BlockX**.
+BlockX aims to become a production-grade financial platform capable of supporting digital banks, fintechs, payment gateways, embedded finance solutions and crypto infrastructure while remaining modular, secure and highly scalable.9
