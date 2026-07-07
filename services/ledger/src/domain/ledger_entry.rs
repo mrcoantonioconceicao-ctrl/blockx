@@ -1,17 +1,19 @@
 use chrono::{DateTime, Utc};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use shared::{Currency, Money};
 use uuid::Uuid;
 
-/// Representa um lançamento contábil no Ledger.
+/// Representa um lançamento contábil imutável do Ledger.
 ///
-/// Cada movimentação financeira deve gerar um ou mais lançamentos.
-/// O Ledger é imutável: uma vez criado, um lançamento nunca deve ser alterado.
+/// Todo lançamento pertence a uma transação e faz parte
+/// de um Journal. Após criado, nunca deve ser alterado.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LedgerEntry {
     /// Identificador único do lançamento.
     pub id: Uuid,
 
-    /// Identificador da transação à qual este lançamento pertence.
+    /// Identificador da transação.
     pub transaction_id: Uuid,
 
     /// Conta debitada.
@@ -20,16 +22,13 @@ pub struct LedgerEntry {
     /// Conta creditada.
     pub credit_account: String,
 
-    /// Valor da movimentação.
-    pub amount: f64,
+    /// Valor monetário.
+    pub amount: Money,
 
-    /// Moeda (BRL, BTC, USDT, ETH, etc.).
-    pub currency: String,
-
-    /// Descrição da operação.
+    /// Descrição do lançamento.
     pub description: String,
 
-    /// Data e hora do lançamento.
+    /// Momento em que o lançamento foi criado.
     pub created_at: DateTime<Utc>,
 }
 
@@ -37,8 +36,8 @@ impl LedgerEntry {
     pub fn new(
         debit_account: String,
         credit_account: String,
-        amount: f64,
-        currency: String,
+        amount: Decimal,
+        currency: Currency,
         description: String,
     ) -> Self {
         Self {
@@ -46,10 +45,21 @@ impl LedgerEntry {
             transaction_id: Uuid::new_v4(),
             debit_account,
             credit_account,
-            amount,
-            currency,
+            amount: Money::new(amount, currency),
             description,
             created_at: Utc::now(),
         }
+    }
+
+    pub fn currency(&self) -> &Currency {
+        &self.amount.currency
+    }
+
+    pub fn is_zero(&self) -> bool {
+        self.amount.is_zero()
+    }
+
+    pub fn is_negative(&self) -> bool {
+        self.amount.is_negative()
     }
 }

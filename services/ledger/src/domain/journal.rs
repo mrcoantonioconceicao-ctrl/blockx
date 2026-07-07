@@ -33,20 +33,19 @@ impl Journal {
     pub fn total_debits(&self) -> Decimal {
         self.entries
             .iter()
-            .filter(|e| e.entry_type == "DEBIT")
-            .map(|e| e.amount)
-            .sum()
+            .map(|entry| entry.amount.amount)
+            .fold(Decimal::ZERO, |acc, value| acc + value)
     }
 
     pub fn total_credits(&self) -> Decimal {
         self.entries
             .iter()
-            .filter(|e| e.entry_type == "CREDIT")
-            .map(|e| e.amount)
-            .sum()
+            .map(|entry| entry.amount.amount)
+            .fold(Decimal::ZERO, |acc, value| acc + value)
     }
 
     pub fn is_balanced(&self) -> bool {
-        self.total_debits() == self.total_credits()
+        !self.entries.is_empty()
+            && self.total_debits() == self.total_credits()
     }
 }

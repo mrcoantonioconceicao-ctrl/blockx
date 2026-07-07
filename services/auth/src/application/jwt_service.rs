@@ -1,9 +1,22 @@
-use jsonwebtoken::{encode, decode, Header, EncodingKey, DecodingKey, Validation, Algorithm};
+use jsonwebtoken::{
+    decode,
+    encode,
+    Algorithm,
+    DecodingKey,
+    EncodingKey,
+    Header,
+    Validation,
+};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::application::jwt_claims::Claims;
 
-const SECRET: &[u8] = b"blockx_secret_key_change_me";
+/// Chave JWT.
+///
+/// TODO:
+/// Remover esta constante e carregar a chave a partir
+/// de variável de ambiente ou Secret Manager.
+const SECRET: &[u8] = b"nexavor_secret_key_change_me";
 
 fn now() -> usize {
     SystemTime::now()

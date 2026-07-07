@@ -1,14 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum AccountType {
-    Asset,
-    Liability,
-    Equity,
-    Revenue,
-    Expense,
-}
+use crate::domain::account_type::AccountType;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Account {
@@ -36,5 +29,13 @@ impl Account {
 
     pub fn deactivate(&mut self) {
         self.active = false;
+    }
+
+    pub fn activate(&mut self) {
+        self.active = true;
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.active
     }
 }

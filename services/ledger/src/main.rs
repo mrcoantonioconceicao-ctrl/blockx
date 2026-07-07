@@ -11,6 +11,7 @@ mod domain;
 mod infrastructure;
 
 use application::ledger_service::LedgerService;
+use domain::{Journal, LedgerEntry};
 use infrastructure::in_memory_ledger_repository::InMemoryLedgerRepository;
 
 #[derive(Clone)]
@@ -22,7 +23,7 @@ struct AppState {
 struct CreateEntryRequest {
     debit_account: String,
     credit_account: String,
-    amount: f64,
+    amount: String,
     currency: String,
     description: String,
 }
@@ -35,30 +36,25 @@ struct HealthResponse {
 
 async fn health() -> Json<HealthResponse> {
     Json(HealthResponse {
-        service: "BlockX Ledger".to_string(),
+        service: "Nexavor Ledger".to_string(),
         status: "running".to_string(),
     })
 }
 
 async fn create_entry(
-    State(state): State<AppState>,
-    Json(request): Json<CreateEntryRequest>,
-) -> Json<domain::ledger_entry::LedgerEntry> {
-    let entry = state.service.record_entry(
-        request.debit_account,
-        request.credit_account,
-        request.amount,
-        request.currency,
-        request.description,
-    );
-
-    Json(entry)
+    State(_state): State<AppState>,
+    Json(_request): Json<CreateEntryRequest>,
+) -> Result<Json<String>, String> {
+    Err(
+        "Endpoint em refatoração para o novo modelo Journal."
+            .to_string(),
+    )
 }
 
 async fn list_entries(
     State(state): State<AppState>,
-) -> Json<Vec<domain::ledger_entry::LedgerEntry>> {
-    Json(state.service.all_entries())
+) -> Json<Vec<LedgerEntry>> {
+    Json(state.service.list_entries())
 }
 
 #[tokio::main]
@@ -76,7 +72,7 @@ async fn main() {
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 4002));
 
-    println!("Ledger running on {}", addr);
+    println!("Nexavor Ledger running on {}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr)
         .await

@@ -1,5 +1,5 @@
 use crate::domain::{Journal, LedgerEntry};
-use crate::infrastructure::LedgerRepository;
+use crate::infrastructure::ledger_repository::LedgerRepository;
 
 #[derive(Clone)]
 pub struct LedgerService<R>
@@ -46,3 +46,4 @@ where
         self.repository.find_by_account(&account_id)
     }
 }
+
