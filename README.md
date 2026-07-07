@@ -1,171 +1,125 @@
+Nexavor
+
+> Enterprise Software Ecosystem built in Rust.
+
+---
+
+# Overview
+
+Nexavor is a long-term enterprise ecosystem designed to build highly scalable, modular and secure platforms.
+
+The ecosystem is organized into specialized platforms that evolve independently while sharing common architectural principles.
+
+Current platforms:
+
+- BlockX — Financial Platform
+- ORION — AI Orchestration Layer (planned)
+- HORIZON — Research & Knowledge Platform (planned)
+
+---
+
 # BlockX
 
-> Enterprise Financial Platform written in Rust, built with SOA, Clean Architecture and Domain-Driven Design.
+Enterprise Financial Platform written in Rust.
+
+Built using:
+
+- SOA
+- Clean Architecture
+- Domain-Driven Design
+- Modular Services
+- Crypto Agility
+- Post-Quantum Ready
 
 ---
 
 # Vision
 
-BlockX is becoming a modular financial platform capable of powering:
+BlockX is designed to power:
 
 - Digital Wallets
-- Banking as a Service (BaaS)
+- Banking as a Service
 - Embedded Finance
-- Crypto Payment Gateway
+- Payment Processing
+- Crypto Infrastructure
 - Tokenization
 - Risk Management
 - Compliance
 - Audit
-- Ledger
-- Future Open Finance integrations
-
-The project is designed as a long-term enterprise platform rather than a simple banking application.
+- Financial Ledger
+- Open Finance
 
 ---
 
 # Current Architecture
-
-```
-                BlockX Platform
-
-                      API Gateway
-                           │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-     Auth Service      Wallet Service    Ledger Service
-        │                  │                  │
-        │                  │                  │
-        └────────────── HTTP ────────────────┘
-                           │
-                    Future Database
-              PostgreSQL / CockroachDB
-```
+API Gateway
+                 │
+┌────────────────┼────────────────┐
+│                │                │
+Auth Service   Wallet Service   Ledger Service │                │                │ └──────────── HTTP ───────────────┘ │ PostgreSQL (future)
 
 ---
 
 # Workspace
-
-```
-blockx/
-
-crates/
-├── shared
-├── config
-├── observability
-└── errors
-
-services/
-├── auth
-├── wallet
-├── ledger
-├── gateway (planned)
-├── risk (planned)
-├── audit (planned)
-├── iam (planned)
-├── kyc (planned)
-└── tokenization (planned)
-```
+nexavor/
+crates/ ├── shared ├── config ├── observability └── errors
+services/ ├── auth ├── wallet ├── ledger ├── gateway (planned) ├── risk (planned) ├── audit (planned) ├── iam (planned) ├── kyc (planned) └── tokenization (planned)
 
 ---
 
-# Services
+# Current Modules
 
 ## Auth
 
-Responsible for:
+Responsible for
 
 - Registration
 - Login
-- Password Hashing
 - JWT
 - Refresh Token
+- Password Hashing
 
 ---
 
 ## Wallet
 
-Responsible for:
+Responsible for
 
-- Wallet creation
-- Wallet management
-- Currency ownership
-- Wallet state
+- Wallet Creation
+- Wallet State
+- Supported Currencies
 
-Current status:
+Current
 
-Wallet still maintains balances locally.
+Wallet still stores balances locally.
 
-Future state:
+Future
 
-Wallet will become a consumer of the Ledger Service, no longer updating balances directly.
+Wallet becomes a Ledger consumer.
 
 ---
 
 ## Ledger
 
-The Ledger is becoming the financial core of BlockX.
-
-Responsibilities:
-
-- Double-entry accounting
-- Journals
-- Debit/Credit entries
-- Atomic transactions
-- Immutable financial history
-
-Future responsibilities:
-
-- Chart of Accounts
-- Posting engine
-- Accounting validation
-- Settlement support
-
----
-
-# Architectural Evolution
+The financial core.
 
 Current
 
-```
-Wallet
-    │
-updates balance
-```
+- Ledger Entries
+- Journals
+- Double Entry
+- Chart of Accounts
+- Currency
+- Money Value Object
+- Balance Validation
 
 Future
 
-```
-Wallet
-    │
-HTTP
-    ▼
-Ledger
-    │
-creates Journal
-    │
-validates Double Entry
-    │
-persists accounting entries
-    │
-returns success
-    │
-Wallet refreshes balance
-```
-
----
-
-# Next Milestones
-
-- Ledger REST API
-- Journal endpoints
-- Chart of Accounts
-- Atomic Transactions
-- Wallet → Ledger integration
-- PostgreSQL persistence
-- Crypto Gateway integration
-- Event Bus
-- Audit Service
-- Risk Engine
+- Posting Engine
+- Settlement
+- Accounting Rules
+- Closing Periods
+- Financial Statements
 
 ---
 
@@ -178,10 +132,80 @@ Wallet refreshes balance
 - CQRS (future)
 - Event Driven Architecture (future)
 - Crypto Agility
-- Post-Quantum Ready
+- Post Quantum Ready
+
+---
+
+# Roadmap
+
+## Phase 1
+
+- ✅ Auth
+- ✅ Wallet
+- ✅ Ledger Domain
+- ✅ Journal
+- ✅ Double Entry
+- ✅ Chart of Accounts
+
+---
+
+## Phase 2
+
+- REST Ledger
+- PostgreSQL
+- Wallet → Ledger Integration
+- Transactions
+
+---
+
+## Phase 3
+
+- Event Bus
+- Audit
+- Risk Engine
+- IAM
+- KYC
+
+---
+
+## Phase 4
+
+- Tokenization
+- Crypto Gateway
+- Settlement
+- Multi-Tenant
+- Horizontal Scaling
+
+---
+
+# Future Ecosystem
+
+Nexavor
+
+├── BlockX
+│   ├── Auth
+│   ├── Wallet
+│   ├── Ledger
+│   ├── Risk
+│   ├── Audit
+│   ├── IAM
+│   ├── KYC
+│   └── Tokenization
+│
+├── ORION
+│   ├── AI Orchestrator
+│   ├── Agents
+│   ├── Governance
+│   └── Automation
+│
+└── HORIZON
+    ├── Research
+    ├── ADRs
+    ├── Knowledge Base
+    └── Architecture Library
 
 ---
 
 # Long-Term Goal
 
-BlockX aims to become a production-grade financial platform capable of supporting digital banks, fintechs, payment gateways, embedded finance solutions and crypto infrastructure while remaining modular, secure and highly scalable.9
+Build an enterprise ecosystem capable of powering banks, fintechs, embedded finance solutions, payment processors and AI-driven enterprise platforms while remaining modular, secure, deterministic and highly scalable.
