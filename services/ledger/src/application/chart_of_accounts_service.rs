@@ -1,5 +1,7 @@
+use crate::application::default_chart::default_chart;
 use crate::domain::{Account, ChartOfAccounts};
 
+#[derive(Clone)]
 pub struct ChartOfAccountsService {
     chart: ChartOfAccounts,
 }
@@ -7,7 +9,7 @@ pub struct ChartOfAccountsService {
 impl ChartOfAccountsService {
     pub fn new() -> Self {
         Self {
-            chart: ChartOfAccounts::new(),
+            chart: default_chart(),
         }
     }
 
@@ -25,5 +27,9 @@ impl ChartOfAccountsService {
 
     pub fn total_accounts(&self) -> usize {
         self.chart.total_accounts()
+    }
+
+    pub fn all(&self) -> Vec<&Account> {
+        self.chart.all()
     }
 }

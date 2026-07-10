@@ -10,13 +10,17 @@ mod application;
 mod domain;
 mod infrastructure;
 
-use application::ledger_service::LedgerService;
-use domain::{Journal, LedgerEntry};
+use application::{
+    chart_of_accounts_service::ChartOfAccountsService,
+    ledger_service::LedgerService,
+};
+use domain::{Account, LedgerEntry};
 use infrastructure::in_memory_ledger_repository::InMemoryLedgerRepository;
 
 #[derive(Clone)]
 struct AppState {
-    service: LedgerService<InMemoryLedgerRepository>,
+    ledger_service: LedgerService<InMemoryLedgerRepository>,
+    chart_service: ChartOfAccountsService,
 }
 
 #[derive(Deserialize)]
@@ -41,6 +45,19 @@ async fn health() -> Json<HealthResponse> {
     })
 }
 
+async fn list_accounts(
+    State(state): State<AppState>,
+) -> Json<Vec<Account>> {
+    Json(
+        state
+            .chart_service
+            .all()
+            .into_iter()
+            .cloned()
+            .collect(),
+    )
+}
+
 async fn create_entry(
     State(_state): State<AppState>,
     Json(_request): Json<CreateEntryRequest>,
@@ -54,19 +71,25 @@ async fn create_entry(
 async fn list_entries(
     State(state): State<AppState>,
 ) -> Json<Vec<LedgerEntry>> {
-    Json(state.service.list_entries())
+    Json(state.ledger_service.list_entries())
 }
 
 #[tokio::main]
 async fn main() {
     let repository = InMemoryLedgerRepository::new();
 
-    let service = LedgerService::new(repository);
+    let ledger_service = LedgerService::new(repository);
 
-    let state = AppState { service };
+    let chart_service = ChartOfAccountsService::new();
+
+    let state = AppState {
+        ledger_service,
+        chart_service,
+    };
 
     let app = Router::new()
         .route("/", get(health))
+        .route("/accounts", get(list_accounts))
         .route("/entries", post(create_entry).get(list_entries))
         .with_state(state);
 
