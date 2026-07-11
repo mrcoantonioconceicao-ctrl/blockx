@@ -1,72 +1,93 @@
-# BlockX
+# Nexavor
 
-Enterprise Financial Infrastructure Platform built in Rust
+Enterprise Financial Platform written in Rust.
 
-BlockX is a next-generation financial infrastructure and security platform designed for institutions, fintechs, payment providers, and digital asset ecosystems.
+## Current Architecture
 
-## Core Principles
+```
+services/
+├── auth
+├── ledger
+└── wallet
+```
 
-- Security by Design
-- Deterministic Core
-- Auditability
-- SOA Architecture
-- Clean Architecture
-- DDD
-- BPMN Ready
-- Cloud Native
+## Ledger
 
-## Current Status
+Current features:
 
-### Sprint 0
-- Foundation ✅
+- In-memory Ledger Repository
+- Double Entry domain
+- Journal entity
+- Chart of Accounts
+- Default Chart of Accounts
+- Account Types
+- REST API
 
-### Sprint 1
-- Config ✅
-- Shared ✅
-- Errors ✅
-- Observability ✅
+Endpoints
 
-### Sprint 2 - Auth Service
+GET /
 
-Implemented:
+Health Check
 
-- User Creation ✅
-- Email Validation ✅
-- Password Validation ✅
-- Argon2id Hashing ✅
-- Password Verification ✅
-- Login Flow ✅
-- JWT Access Token ✅
-- JWT Validation ✅
-- Refresh Token ✅
-- Refresh Token Validation ✅
-- Duplicate User Protection ✅
+GET /accounts
 
-## Technology
+Returns the Chart of Accounts.
 
-- Rust
-- Tokio
-- JWT
-- Argon2id
-- GitHub Actions
-- PostgreSQL (planned)
-- SQLx (planned)
-- Docker (planned)
-- Kubernetes (planned)
+GET /entries
 
-## Future Modules
+Returns ledger entries.
 
-- IAM
-- Wallet
-- KYC
-- Ledger
-- Payment Gateway
-- Tokenization
-- Risk Engine
+POST /entries
 
-## Repository
+Reserved for Journal posting (under refactoring).
 
-Private Repository
+## Current Chart of Accounts
 
-BlockX is under active development.
+| Code | Account |
+|------|----------|
+|1001|Cash|
+|1100|Bank|
+|2000|Accounts Payable|
+|3000|Equity|
+|4000|Revenue|
+|5000|Expense|
 
+## Status
+
+✔ Auth Service
+
+✔ Wallet Service
+
+✔ Ledger Service
+
+✔ Chart of Accounts
+
+✔ REST API
+
+🚧 Journal Posting
+
+🚧 Persistence
+
+🚧 PostgreSQL
+
+🚧 Audit Trail
+
+## Build
+
+```bash
+cargo build
+```
+
+Run Ledger
+
+```bash
+cargo run -p ledger
+```
+
+API
+
+```
+http://localhost:4002
+```
+
+Project under active development.
