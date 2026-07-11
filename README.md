@@ -90,4 +90,30 @@ API
 http://localhost:4002
 ```
 
+## Sprint 006 - Ledger Chart of Accounts
+
+### Novidades
+
+- Implementado domínio Chart of Accounts.
+- Criado Account.
+- Criado AccountType.
+- Criado ChartOfAccounts.
+- Criado ChartOfAccountsService.
+- Catálogo inicial de contas carregado automaticamente.
+- Endpoint REST:
+
+GET /accounts
+
+Retorna todas as contas contábeis cadastradas.
+
+Exemplo:
+
+```json
+[
+  {
+    "code": "1001",
+    "name": "Cash"
+  }
+]
+
 Project under active development.
