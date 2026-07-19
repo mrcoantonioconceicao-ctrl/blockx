@@ -1,22 +1,27 @@
 use axum::{
-    routing::post,
-    Router,
-    Json,
     extract::State,
+    http::StatusCode,
+    routing::post,
+    Json,
+    Router,
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
 mod api;
 mod application;
+mod bootstrap;
 mod domain;
 mod infrastructure;
-mod bootstrap;
 mod state;
 
-use state::AppState;
-use crate::application::{create_user, login_user};
+use crate::application::{
+    create_user,
+    login_user,
+    refresh_flow,
+};
 use crate::infrastructure::user_repository::UserRepository;
+use state::AppState;
 
 #[derive(Deserialize)]
 struct RegisterRequest {
@@ -30,6 +35,11 @@ struct LoginRequest {
     password: String,
 }
 
+#[derive(Deserialize)]
+struct RefreshRequest {
+    refresh_token: String,
+}
+
 #[derive(Serialize)]
 struct RegisterResponse {
     user_id: String,
@@ -37,50 +47,111 @@ struct RegisterResponse {
 
 #[derive(Serialize)]
 struct LoginResponse {
-    token: String,
+    access_token: String,
+    refresh_token: String,
+}
+
+#[derive(Serialize)]
+struct RefreshResponse {
+    access_token: String,
+    refresh_token: String,
 }
 
 async fn register(
     State(state): State<AppState>,
     Json(payload): Json<RegisterRequest>,
-) -> Json<RegisterResponse> {
+) -> Result<Json<RegisterResponse>, (StatusCode, String)> {
+
+    if state.repository.exists(&payload.email) {
+        return Err((
+            StatusCode::CONFLICT,
+            "email already registered".to_string(),
+        ));
+    }
 
     let user = create_user::execute(
         payload.email,
         payload.password,
-    ).expect("create user failed");
+    )
+    .map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            "could not create user".to_string(),
+        )
+    })?;
 
     state.repository.save(&user);
 
-    Json(RegisterResponse {
+    Ok(Json(RegisterResponse {
         user_id: user.id.to_string(),
-    })
+    }))
 }
 
 async fn login(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
-) -> Json<LoginResponse> {
+) -> Result<Json<LoginResponse>, (StatusCode, String)> {
 
-    let user = state.repository
+    let user = state
+        .repository
         .find_by_email(&payload.email)
-        .expect("user not found");
+        .ok_or((
+            StatusCode::UNAUTHORIZED,
+            "invalid credentials".to_string(),
+        ))?;
 
-    let token = login_user::execute(&user)
-        .expect("login failed");
+    let result = login_user::execute(
+        &user,
+        &payload.password,
+    )
+    .map_err(|_| {
+        (
+            StatusCode::UNAUTHORIZED,
+            "invalid credentials".to_string(),
+        )
+    })?;
 
-    Json(LoginResponse {
-        token: token,
-    })
+    state
+        .refresh_store
+        .save(result.refresh_token.clone());
+
+    Ok(Json(LoginResponse {
+        access_token: result.access_token,
+        refresh_token: result.refresh_token.token,
+    }))
+}
+
+async fn refresh(
+    State(state): State<AppState>,
+    Json(payload): Json<RefreshRequest>,
+) -> Result<Json<RefreshResponse>, (StatusCode, String)> {
+
+    let result = refresh_flow::execute(
+        &state.refresh_store,
+        &payload.refresh_token,
+    )
+    .map_err(|_| {
+        (
+            StatusCode::UNAUTHORIZED,
+            "invalid refresh token".to_string(),
+        )
+    })?;
+
+    Ok(Json(RefreshResponse {
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+    }))
 }
 
 #[tokio::main]
 async fn main() {
+
     let state = AppState::new();
 
     let app = Router::new()
         .route("/auth/register", post(register))
         .route("/auth/login", post(login))
+        .route("/auth/refresh", post(refresh))
         .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
@@ -88,7 +159,9 @@ async fn main() {
     println!("Auth running on {}", addr);
 
     axum::serve(
-        tokio::net::TcpListener::bind(addr).await.unwrap(),
+        tokio::net::TcpListener::bind(addr)
+            .await
+            .unwrap(),
         app,
     )
     .await

@@ -10,14 +10,8 @@ pub struct Money {
 }
 
 impl Money {
-    pub fn new(
-        amount: Decimal,
-        currency: Currency,
-    ) -> Self {
-        Self {
-            amount,
-            currency,
-        }
+    pub fn new(amount: Decimal, currency: Currency) -> Self {
+        Self { amount, currency }
     }
 
     pub fn zero(currency: Currency) -> Self {
@@ -37,10 +31,7 @@ impl Money {
 }
 
 impl fmt::Display for Money {
-    fn fmt(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} {}", self.currency, self.amount)
     }
 }

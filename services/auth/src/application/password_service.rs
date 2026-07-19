@@ -1,11 +1,6 @@
 use argon2::{
-    password_hash::{
-        PasswordHash,
-        PasswordHasher,
-        PasswordVerifier,
-        SaltString,
-    },
     Argon2,
+    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
 };
 
 use rand::rngs::OsRng;
@@ -19,19 +14,11 @@ pub fn hash_password(password: &str) -> Result<String, String> {
         .map_err(|e| format!("failed to hash password: {}", e))
 }
 
-pub fn verify_password(
-    password: &str,
-    hash: &str,
-) -> bool {
+pub fn verify_password(password: &str, hash: &str) -> bool {
     match PasswordHash::new(hash) {
-        Ok(parsed_hash) => {
-            Argon2::default()
-                .verify_password(
-                    password.as_bytes(),
-                    &parsed_hash,
-                )
-                .is_ok()
-        }
+        Ok(parsed_hash) => Argon2::default()
+            .verify_password(password.as_bytes(), &parsed_hash)
+            .is_ok(),
         Err(_) => false,
     }
 }
@@ -46,10 +33,7 @@ mod tests {
 
         let hash = hash_password(password).unwrap();
 
-        assert!(verify_password(
-            password,
-            &hash,
-        ));
+        assert!(verify_password(password, &hash,));
     }
 
     #[test]
@@ -58,9 +42,6 @@ mod tests {
 
         let hash = hash_password(password).unwrap();
 
-        assert!(!verify_password(
-            "wrong-password",
-            &hash,
-        ));
+        assert!(!verify_password("wrong-password", &hash,));
     }
 }

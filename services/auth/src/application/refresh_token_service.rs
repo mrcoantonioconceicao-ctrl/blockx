@@ -12,7 +12,6 @@ fn now() -> usize {
 pub struct RefreshTokenService;
 
 impl RefreshTokenService {
-
     pub fn new() -> Self {
         Self
     }

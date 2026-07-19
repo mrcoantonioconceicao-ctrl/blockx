@@ -28,16 +28,10 @@ impl LedgerRepository for InMemoryLedgerRepository {
         entries.push(entry);
     }
 
-    fn find_by_id(
-        &self,
-        id: Uuid,
-    ) -> Option<LedgerEntry> {
+    fn find_by_id(&self, id: Uuid) -> Option<LedgerEntry> {
         let entries = self.entries.lock().unwrap();
 
-        entries
-            .iter()
-            .find(|entry| entry.id == id)
-            .cloned()
+        entries.iter().find(|entry| entry.id == id).cloned()
     }
 
     fn find_all(&self) -> Vec<LedgerEntry> {
@@ -45,18 +39,12 @@ impl LedgerRepository for InMemoryLedgerRepository {
         entries.clone()
     }
 
-    fn find_by_account(
-        &self,
-        account: &str,
-    ) -> Vec<LedgerEntry> {
+    fn find_by_account(&self, account: &str) -> Vec<LedgerEntry> {
         let entries = self.entries.lock().unwrap();
 
         entries
             .iter()
-            .filter(|entry| {
-                entry.debit_account == account
-                    || entry.credit_account == account
-            })
+            .filter(|entry| entry.debit_account == account || entry.credit_account == account)
             .cloned()
             .collect()
     }

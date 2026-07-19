@@ -22,4 +22,3 @@ pub struct PaginatedResponse<T> {
     pub per_page: u32,
     pub total: u64,
 }
-

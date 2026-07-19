@@ -1,7 +1,4 @@
-use crate::{
-    application::errors::LedgerError,
-    domain::Journal,
-};
+use crate::{application::errors::LedgerError, domain::Journal};
 
 pub struct JournalValidator;
 
@@ -25,9 +22,7 @@ impl JournalValidator {
             }
 
             if entry.currency() != &first_currency {
-                return Err(LedgerError::InvalidCurrency(
-                    entry.currency().to_string(),
-                ));
+                return Err(LedgerError::InvalidCurrency(entry.currency().to_string()));
             }
         }
 

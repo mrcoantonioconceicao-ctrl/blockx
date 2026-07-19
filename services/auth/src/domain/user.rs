@@ -9,10 +9,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(
-        email: String,
-        password_hash: String,
-    ) -> Self {
+    pub fn new(email: String, password_hash: String) -> Self {
         Self {
             id: Uuid::new_v4(),
             email,

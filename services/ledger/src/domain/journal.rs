@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
-use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::domain::LedgerEntry;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Journal {
     pub id: Uuid,
     pub description: String,
@@ -30,22 +30,48 @@ impl Journal {
         self.entries.len()
     }
 
-    pub fn total_debits(&self) -> Decimal {
-        self.entries
-            .iter()
-            .map(|entry| entry.amount.amount)
-            .fold(Decimal::ZERO, |acc, value| acc + value)
-    }
+    pub fn validate(&self) -> Result<(), String> {
+        if self.entries.is_empty() {
+            return Err("Journal must contain at least one ledger entry.".to_string());
+        }
 
-    pub fn total_credits(&self) -> Decimal {
-        self.entries
-            .iter()
-            .map(|entry| entry.amount.amount)
-            .fold(Decimal::ZERO, |acc, value| acc + value)
-    }
+        for (index, entry) in self.entries.iter().enumerate() {
+            if entry.debit_account.trim().is_empty() {
+                return Err(format!(
+                    "Entry {}: debit account cannot be empty.",
+                    index + 1
+                ));
+            }
 
-    pub fn is_balanced(&self) -> bool {
-        !self.entries.is_empty()
-            && self.total_debits() == self.total_credits()
+            if entry.credit_account.trim().is_empty() {
+                return Err(format!(
+                    "Entry {}: credit account cannot be empty.",
+                    index + 1
+                ));
+            }
+
+            if entry.debit_account == entry.credit_account {
+                return Err(format!(
+                    "Entry {}: debit and credit accounts must be different.",
+                    index + 1
+                ));
+            }
+
+            if entry.is_zero() {
+                return Err(format!(
+                    "Entry {}: amount must be greater than zero.",
+                    index + 1
+                ));
+            }
+
+            if entry.is_negative() {
+                return Err(format!(
+                    "Entry {}: amount cannot be negative.",
+                    index + 1
+                ));
+            }
+        }
+
+        Ok(())
     }
 }

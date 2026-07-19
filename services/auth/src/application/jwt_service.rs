@@ -1,12 +1,4 @@
-use jsonwebtoken::{
-    decode,
-    encode,
-    Algorithm,
-    DecodingKey,
-    EncodingKey,
-    Header,
-    Validation,
-};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::application::jwt_claims::Claims;

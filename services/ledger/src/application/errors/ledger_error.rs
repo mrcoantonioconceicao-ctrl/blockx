@@ -36,4 +36,3 @@ impl fmt::Display for LedgerError {
 }
 
 impl std::error::Error for LedgerError {}
-

@@ -22,7 +22,6 @@ impl InMemoryWalletRepository {
 }
 
 impl WalletRepository for InMemoryWalletRepository {
-
     fn save(&self, wallet: Wallet) {
         let mut db = self.wallets.lock().unwrap();
         db.insert(wallet.user_id.clone(), wallet);

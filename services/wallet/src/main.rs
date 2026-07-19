@@ -1,14 +1,14 @@
 use axum::{
-    routing::{get, post},
     Json, Router,
-    extract::{State, Path},
+    extract::{Path, State},
+    routing::{get, post},
 };
 use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, sync::Arc};
 
+mod application;
 mod domain;
 mod infrastructure;
-mod application;
 
 use application::wallet_service::WalletService;
 use infrastructure::wallet_repository::InMemoryWalletRepository;
@@ -54,7 +54,6 @@ async fn create_wallet(
     State(state): State<AppState>,
     Json(req): Json<CreateWalletRequest>,
 ) -> Json<WalletResponse> {
-
     let wallet = state.service.create_wallet(req.user_id, req.currency);
 
     Json(WalletResponse {
@@ -70,7 +69,6 @@ async fn credit(
     State(state): State<AppState>,
     Json(req): Json<AmountRequest>,
 ) -> Json<WalletResponse> {
-
     let wallet = state.service.credit(&req.user_id, req.amount).unwrap();
 
     Json(WalletResponse {
@@ -86,7 +84,6 @@ async fn debit(
     State(state): State<AppState>,
     Json(req): Json<AmountRequest>,
 ) -> Json<WalletResponse> {
-
     let wallet = state.service.debit(&req.user_id, req.amount).unwrap();
 
     Json(WalletResponse {
@@ -102,7 +99,6 @@ async fn get_wallet(
     State(state): State<AppState>,
     Path(user_id): Path<String>,
 ) -> Json<Option<WalletResponse>> {
-
     let wallet = state.service.get_wallet(&user_id);
 
     Json(wallet.map(|w| WalletResponse {
@@ -129,10 +125,7 @@ async fn main() {
 
     println!("Wallet running on {}", addr);
 
-    axum::serve(
-        tokio::net::TcpListener::bind(addr).await.unwrap(),
-        app,
-    )
-    .await
-    .unwrap();
+    axum::serve(tokio::net::TcpListener::bind(addr).await.unwrap(), app)
+        .await
+        .unwrap();
 }

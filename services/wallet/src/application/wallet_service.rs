@@ -21,7 +21,9 @@ impl<R: WalletRepository> WalletService<R> {
     }
 
     pub fn credit(&self, user_id: &str, amount: i64) -> Result<Wallet, String> {
-        let mut wallet = self.repo.find_by_user_id(user_id)
+        let mut wallet = self
+            .repo
+            .find_by_user_id(user_id)
             .ok_or("wallet not found")?;
 
         wallet.credit(amount);
@@ -31,7 +33,9 @@ impl<R: WalletRepository> WalletService<R> {
     }
 
     pub fn debit(&self, user_id: &str, amount: i64) -> Result<Wallet, String> {
-        let mut wallet = self.repo.find_by_user_id(user_id)
+        let mut wallet = self
+            .repo
+            .find_by_user_id(user_id)
             .ok_or("wallet not found")?;
 
         wallet.debit(amount)?;
