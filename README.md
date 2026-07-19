@@ -1,119 +1,72 @@
-# Nexavor
+# BlockX
 
-Enterprise Financial Platform written in Rust.
+Enterprise Financial Infrastructure Platform built in Rust
 
-## Current Architecture
+BlockX is a next-generation financial infrastructure and security platform designed for institutions, fintechs, payment providers, and digital asset ecosystems.
 
-```
-services/
-├── auth
-├── ledger
-└── wallet
-```
+## Core Principles
 
-## Ledger
+- Security by Design
+- Deterministic Core
+- Auditability
+- SOA Architecture
+- Clean Architecture
+- DDD
+- BPMN Ready
+- Cloud Native
 
-Current features:
+## Current Status
 
-- In-memory Ledger Repository
-- Double Entry domain
-- Journal entity
-- Chart of Accounts
-- Default Chart of Accounts
-- Account Types
-- REST API
+### Sprint 0
+- Foundation ✅
 
-Endpoints
+### Sprint 1
+- Config ✅
+- Shared ✅
+- Errors ✅
+- Observability ✅
 
-GET /
+### Sprint 2 - Auth Service
 
-Health Check
+Implemented:
 
-GET /accounts
+- User Creation ✅
+- Email Validation ✅
+- Password Validation ✅
+- Argon2id Hashing ✅
+- Password Verification ✅
+- Login Flow ✅
+- JWT Access Token ✅
+- JWT Validation ✅
+- Refresh Token ✅
+- Refresh Token Validation ✅
+- Duplicate User Protection ✅
 
-Returns the Chart of Accounts.
+## Technology
 
-GET /entries
+- Rust
+- Tokio
+- JWT
+- Argon2id
+- GitHub Actions
+- PostgreSQL (planned)
+- SQLx (planned)
+- Docker (planned)
+- Kubernetes (planned)
 
-Returns ledger entries.
+## Future Modules
 
-POST /entries
+- IAM
+- Wallet
+- KYC
+- Ledger
+- Payment Gateway
+- Tokenization
+- Risk Engine
 
-Reserved for Journal posting (under refactoring).
+## Repository
 
-## Current Chart of Accounts
+Private Repository
 
-| Code | Account |
-|------|----------|
-|1001|Cash|
-|1100|Bank|
-|2000|Accounts Payable|
-|3000|Equity|
-|4000|Revenue|
-|5000|Expense|
+BlockX is under active development.
 
-## Status
-
-✔ Auth Service
-
-✔ Wallet Service
-
-✔ Ledger Service
-
-✔ Chart of Accounts
-
-✔ REST API
-
-🚧 Journal Posting
-
-🚧 Persistence
-
-🚧 PostgreSQL
-
-🚧 Audit Trail
-
-## Build
-
-```bash
-cargo build
-```
-
-Run Ledger
-
-```bash
-cargo run -p ledger
-```
-
-API
-
-```
-http://localhost:4002
-```
-
-## Sprint 006 - Ledger Chart of Accounts
-
-### Novidades
-
-- Implementado domínio Chart of Accounts.
-- Criado Account.
-- Criado AccountType.
-- Criado ChartOfAccounts.
-- Criado ChartOfAccountsService.
-- Catálogo inicial de contas carregado automaticamente.
-- Endpoint REST:
-
-GET /accounts
-
-Retorna todas as contas contábeis cadastradas.
-
-Exemplo:
-
-```json
-[
-  {
-    "code": "1001",
-    "name": "Cash"
-  }
-]
-
-Project under active development.
