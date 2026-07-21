@@ -1,4 +1,5 @@
-use crate::domain::{Journal, LedgerEntry};
+use crate::domain::journal::Journal;
+use crate::domain::ledger_entry::LedgerEntry;
 use crate::infrastructure::ledger_repository::LedgerRepository;
 
 #[derive(Clone)]
@@ -17,22 +18,21 @@ where
         Self { repository }
     }
 
-    pub fn post_journal(&self, journal: Journal) -> Result<(), String> {
-        // Valida a integridade do Journal antes de persistir.
+    pub fn post_journal(&self, journal: &Journal) -> Result<(), String> {
         journal.validate()?;
 
-        for entry in journal.entries {
-            self.repository.save(entry);
+        for entry in &journal.entries {
+            let ledger_entry = LedgerEntry::new(
+                journal.id,
+                entry.account_id,
+                entry.currency.clone(),
+                entry.debit,
+                entry.credit,
+            );
+
+            self.repository.save(ledger_entry);
         }
 
         Ok(())
-    }
-
-    pub fn list_entries(&self) -> Vec<LedgerEntry> {
-        self.repository.find_all()
-    }
-
-    pub fn account_history(&self, account_id: String) -> Vec<LedgerEntry> {
-        self.repository.find_by_account(&account_id)
     }
 }

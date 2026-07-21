@@ -7,9 +7,11 @@ use axum::{
 use serde::Serialize;
 use std::net::SocketAddr;
 
-mod application;
-mod domain;
-mod infrastructure;
+use ledger::{
+    application,
+    domain,
+    infrastructure,
+};
 
 use application::{
     chart_of_accounts_service::ChartOfAccountsService,

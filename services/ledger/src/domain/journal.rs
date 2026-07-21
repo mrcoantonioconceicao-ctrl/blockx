@@ -1,75 +1,62 @@
-use chrono::{DateTime, Utc};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::domain::LedgerEntry;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct JournalEntry {
+    pub account_id: Uuid,
+    pub currency: String,
+    pub debit: Decimal,
+    pub credit: Decimal,
+}
+
+impl JournalEntry {
+    pub fn currency(&self) -> &String {
+        &self.currency
+    }
+
+    pub fn is_negative(&self) -> bool {
+        self.debit < Decimal::ZERO || self.credit < Decimal::ZERO
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Journal {
     pub id: Uuid,
-    pub description: String,
-    pub entries: Vec<LedgerEntry>,
-    pub created_at: DateTime<Utc>,
+    pub entries: Vec<JournalEntry>,
 }
 
 impl Journal {
-    pub fn new(description: impl Into<String>) -> Self {
+    pub fn new(entries: Vec<JournalEntry>) -> Self {
         Self {
             id: Uuid::new_v4(),
-            description: description.into(),
-            entries: Vec::new(),
-            created_at: Utc::now(),
+            entries,
         }
     }
 
-    pub fn add_entry(&mut self, entry: LedgerEntry) {
-        self.entries.push(entry);
+    pub fn total_debit(&self) -> Decimal {
+        self.entries
+            .iter()
+            .fold(Decimal::ZERO, |sum, entry| sum + entry.debit)
     }
 
-    pub fn total_entries(&self) -> usize {
-        self.entries.len()
+    pub fn total_credit(&self) -> Decimal {
+        self.entries
+            .iter()
+            .fold(Decimal::ZERO, |sum, entry| sum + entry.credit)
+    }
+
+    pub fn is_balanced(&self) -> bool {
+        self.total_debit() == self.total_credit()
     }
 
     pub fn validate(&self) -> Result<(), String> {
         if self.entries.is_empty() {
-            return Err("Journal must contain at least one ledger entry.".to_string());
+            return Err("Journal sem lançamentos.".into());
         }
 
-        for (index, entry) in self.entries.iter().enumerate() {
-            if entry.debit_account.trim().is_empty() {
-                return Err(format!(
-                    "Entry {}: debit account cannot be empty.",
-                    index + 1
-                ));
-            }
-
-            if entry.credit_account.trim().is_empty() {
-                return Err(format!(
-                    "Entry {}: credit account cannot be empty.",
-                    index + 1
-                ));
-            }
-
-            if entry.debit_account == entry.credit_account {
-                return Err(format!(
-                    "Entry {}: debit and credit accounts must be different.",
-                    index + 1
-                ));
-            }
-
-            if entry.is_zero() {
-                return Err(format!(
-                    "Entry {}: amount must be greater than zero.",
-                    index + 1
-                ));
-            }
-
-            if entry.is_negative() {
-                return Err(format!(
-                    "Entry {}: amount cannot be negative.",
-                    index + 1
-                ));
-            }
+        if !self.is_balanced() {
+            return Err("Débitos e créditos não fecham.".into());
         }
 
         Ok(())

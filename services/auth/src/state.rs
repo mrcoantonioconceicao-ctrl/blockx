@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
 use crate::infrastructure::{
+    authorization::{
+        permission_repository::PermissionRepository,
+        role_repository::RoleRepository,
+    },
     in_memory_user_repository::InMemoryUserRepository,
     refresh_token_store::RefreshTokenStore,
 };
@@ -9,6 +13,10 @@ use crate::infrastructure::{
 pub struct AppState {
     pub repository: Arc<InMemoryUserRepository>,
     pub refresh_store: Arc<RefreshTokenStore>,
+
+    // RBAC
+    pub role_repository: Arc<RoleRepository>,
+    pub permission_repository: Arc<PermissionRepository>,
 }
 
 impl AppState {
@@ -16,6 +24,9 @@ impl AppState {
         Self {
             repository: Arc::new(InMemoryUserRepository::new()),
             refresh_store: Arc::new(RefreshTokenStore::new()),
+
+            role_repository: Arc::new(RoleRepository::new()),
+            permission_repository: Arc::new(PermissionRepository::new()),
         }
     }
 }

@@ -1,65 +1,48 @@
-use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use shared::{Currency, Money};
 use uuid::Uuid;
 
-/// Representa um lançamento contábil imutável do Ledger.
-///
-/// Todo lançamento pertence a uma transação e faz parte
-/// de um Journal. Após criado, nunca deve ser alterado.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LedgerEntry {
-    /// Identificador único do lançamento.
     pub id: Uuid,
-
-    /// Identificador da transação.
-    pub transaction_id: Uuid,
-
-    /// Conta debitada.
-    pub debit_account: String,
-
-    /// Conta creditada.
-    pub credit_account: String,
-
-    /// Valor monetário.
-    pub amount: Money,
-
-    /// Descrição do lançamento.
-    pub description: String,
-
-    /// Momento em que o lançamento foi criado.
-    pub created_at: DateTime<Utc>,
+    pub journal_id: Uuid,
+    pub account_id: Uuid,
+    pub currency: String,
+    pub debit: Decimal,
+    pub credit: Decimal,
 }
 
 impl LedgerEntry {
     pub fn new(
-        debit_account: String,
-        credit_account: String,
-        amount: Decimal,
-        currency: Currency,
-        description: String,
+        journal_id: Uuid,
+        account_id: Uuid,
+        currency: String,
+        debit: Decimal,
+        credit: Decimal,
     ) -> Self {
         Self {
             id: Uuid::new_v4(),
-            transaction_id: Uuid::new_v4(),
-            debit_account,
-            credit_account,
-            amount: Money::new(amount, currency),
-            description,
-            created_at: Utc::now(),
+            journal_id,
+            account_id,
+            currency,
+            debit,
+            credit,
         }
     }
 
-    pub fn currency(&self) -> &Currency {
-        &self.amount.currency
+    pub fn is_debit(&self) -> bool {
+        self.debit > Decimal::ZERO
     }
 
-    pub fn is_zero(&self) -> bool {
-        self.amount.is_zero()
+    pub fn is_credit(&self) -> bool {
+        self.credit > Decimal::ZERO
     }
 
-    pub fn is_negative(&self) -> bool {
-        self.amount.is_negative()
+    pub fn amount(&self) -> Decimal {
+        if self.debit > Decimal::ZERO {
+            self.debit
+        } else {
+            self.credit
+        }
     }
 }

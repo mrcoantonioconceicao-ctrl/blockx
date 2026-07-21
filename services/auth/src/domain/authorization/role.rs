@@ -1,23 +1,22 @@
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Account {
+#[derive(Debug, Clone)]
+pub struct Role {
     pub id: Uuid,
-    pub code: String,
     pub name: String,
+    pub description: String,
     pub active: bool,
 }
 
-impl Account {
+impl Role {
     pub fn new(
-        code: String,
         name: String,
+        description: String,
     ) -> Self {
         Self {
             id: Uuid::new_v4(),
-            code,
             name,
+            description,
             active: true,
         }
     }
@@ -28,5 +27,19 @@ impl Account {
 
     pub fn enable(&mut self) {
         self.active = true;
+    }
+
+    pub fn rename(
+        &mut self,
+        name: String,
+    ) {
+        self.name = name;
+    }
+
+    pub fn change_description(
+        &mut self,
+        description: String,
+    ) {
+        self.description = description;
     }
 }

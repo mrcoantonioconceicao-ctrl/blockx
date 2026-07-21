@@ -6,9 +6,6 @@ use crate::domain::ledger_entry::LedgerEntry;
 
 use super::ledger_repository::LedgerRepository;
 
-/// Implementação em memória do repositório do Ledger.
-///
-/// Utilizada apenas para desenvolvimento e testes.
 #[derive(Clone)]
 pub struct InMemoryLedgerRepository {
     entries: Arc<Mutex<Vec<LedgerEntry>>>,
@@ -31,7 +28,10 @@ impl LedgerRepository for InMemoryLedgerRepository {
     fn find_by_id(&self, id: Uuid) -> Option<LedgerEntry> {
         let entries = self.entries.lock().unwrap();
 
-        entries.iter().find(|entry| entry.id == id).cloned()
+        entries
+            .iter()
+            .find(|entry| entry.id == id)
+            .cloned()
     }
 
     fn find_all(&self) -> Vec<LedgerEntry> {
@@ -44,7 +44,7 @@ impl LedgerRepository for InMemoryLedgerRepository {
 
         entries
             .iter()
-            .filter(|entry| entry.debit_account == account || entry.credit_account == account)
+            .filter(|entry| entry.account_id.to_string() == account)
             .cloned()
             .collect()
     }

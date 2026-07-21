@@ -6,11 +6,10 @@ pub struct PostingEngine;
 
 impl PostingEngine {
     pub fn post(journal: &Journal) -> Result<(), LedgerError> {
-        // Valida o Journal antes do processamento
-        JournalValidator::validate(journal)?;
+        JournalValidator::validate(journal)
+            .map_err(LedgerError::RepositoryError)?;
 
-        // Próximas etapas da evolução:
-        //
+        // Próximas etapas:
         // 1. Validar Chart of Accounts
         // 2. Validar moedas
         // 3. Abrir transação
