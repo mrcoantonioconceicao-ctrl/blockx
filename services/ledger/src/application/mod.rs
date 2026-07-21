@@ -4,3 +4,4 @@ pub mod errors;
 pub mod journal_validator;
 pub mod ledger_service;
 pub mod posting_engine;
+pub mod journal_service;
