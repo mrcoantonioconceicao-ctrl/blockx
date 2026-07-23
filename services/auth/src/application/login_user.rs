@@ -17,10 +17,7 @@ pub struct LoginResult {
 /// 2. Valida a senha utilizando Argon2.
 /// 3. Gera um Access Token (JWT).
 /// 4. Gera um Refresh Token.
-pub fn execute(
-    user: &User,
-    password: &str,
-) -> Result<LoginResult, String> {
+pub fn execute(user: &User, password: &str) -> Result<LoginResult, String> {
     if !user.active {
         return Err("user is disabled".to_string());
     }

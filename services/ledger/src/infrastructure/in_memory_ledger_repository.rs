@@ -28,10 +28,7 @@ impl LedgerRepository for InMemoryLedgerRepository {
     fn find_by_id(&self, id: Uuid) -> Option<LedgerEntry> {
         let entries = self.entries.lock().unwrap();
 
-        entries
-            .iter()
-            .find(|entry| entry.id == id)
-            .cloned()
+        entries.iter().find(|entry| entry.id == id).cloned()
     }
 
     fn find_all(&self) -> Vec<LedgerEntry> {

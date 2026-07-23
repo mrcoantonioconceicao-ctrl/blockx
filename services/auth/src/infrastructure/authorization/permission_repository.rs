@@ -26,19 +26,10 @@ impl PermissionRepository {
     }
 
     pub fn find(&self, id: Uuid) -> Option<Permission> {
-        self.permissions
-            .lock()
-            .unwrap()
-            .get(&id)
-            .cloned()
+        self.permissions.lock().unwrap().get(&id).cloned()
     }
 
     pub fn list(&self) -> Vec<Permission> {
-        self.permissions
-            .lock()
-            .unwrap()
-            .values()
-            .cloned()
-            .collect()
+        self.permissions.lock().unwrap().values().cloned().collect()
     }
 }

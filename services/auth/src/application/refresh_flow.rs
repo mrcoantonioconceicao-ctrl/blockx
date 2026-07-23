@@ -8,20 +8,14 @@ pub struct RefreshResponse {
     pub refresh_token: String,
 }
 
-pub fn execute(
-    store: &RefreshTokenStore,
-    refresh_token: &str,
-) -> Result<RefreshResponse, String> {
-
+pub fn execute(store: &RefreshTokenStore, refresh_token: &str) -> Result<RefreshResponse, String> {
     // 1. checa blacklist
     if store.is_revoked(refresh_token) {
         return Err("token revoked".to_string());
     }
 
     // 2. busca token ativo
-    let stored = store
-        .get(refresh_token)
-        .ok_or("invalid refresh token")?;
+    let stored = store.get(refresh_token).ok_or("invalid refresh token")?;
 
     // 3. valida expiração
     let service = RefreshTokenService::new();
@@ -34,8 +28,8 @@ pub fn execute(
     store.revoke(refresh_token);
 
     // 5. gera novo access token
-    let access_token = generate_token(&stored.user_id)
-        .map_err(|_| "failed to generate access token")?;
+    let access_token =
+        generate_token(&stored.user_id).map_err(|_| "failed to generate access token")?;
 
     // 6. gera novo refresh token
     let new_refresh = service.generate(&stored.user_id);

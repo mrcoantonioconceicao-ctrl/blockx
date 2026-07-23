@@ -10,10 +10,7 @@ pub struct Account {
 }
 
 impl Account {
-    pub fn new(
-        code: String,
-        name: String,
-    ) -> Self {
+    pub fn new(code: String, name: String) -> Self {
         Self {
             id: Uuid::new_v4(),
             code,

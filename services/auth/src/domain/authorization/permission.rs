@@ -18,10 +18,7 @@ pub struct Permission {
 }
 
 impl Permission {
-    pub fn new(
-        code: impl Into<String>,
-        description: impl Into<String>,
-    ) -> Self {
+    pub fn new(code: impl Into<String>, description: impl Into<String>) -> Self {
         Self {
             id: Uuid::new_v4(),
             code: code.into(),
@@ -38,10 +35,7 @@ impl Permission {
         self.active = true;
     }
 
-    pub fn update_description(
-        &mut self,
-        description: impl Into<String>,
-    ) {
+    pub fn update_description(&mut self, description: impl Into<String>) {
         self.description = description.into();
     }
 }

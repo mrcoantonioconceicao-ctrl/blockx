@@ -9,10 +9,7 @@ pub struct Role {
 }
 
 impl Role {
-    pub fn new(
-        name: String,
-        description: String,
-    ) -> Self {
+    pub fn new(name: String, description: String) -> Self {
         Self {
             id: Uuid::new_v4(),
             name,
@@ -29,17 +26,11 @@ impl Role {
         self.active = true;
     }
 
-    pub fn rename(
-        &mut self,
-        name: String,
-    ) {
+    pub fn rename(&mut self, name: String) {
         self.name = name;
     }
 
-    pub fn change_description(
-        &mut self,
-        description: String,
-    ) {
+    pub fn change_description(&mut self, description: String) {
         self.description = description;
     }
 }

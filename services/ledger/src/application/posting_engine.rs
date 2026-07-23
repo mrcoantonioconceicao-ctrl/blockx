@@ -6,8 +6,7 @@ pub struct PostingEngine;
 
 impl PostingEngine {
     pub fn post(journal: &Journal) -> Result<(), LedgerError> {
-        JournalValidator::validate(journal)
-            .map_err(LedgerError::RepositoryError)?;
+        JournalValidator::validate(journal).map_err(LedgerError::RepositoryError)?;
 
         // Próximas etapas:
         // 1. Validar Chart of Accounts

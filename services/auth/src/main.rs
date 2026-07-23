@@ -1,10 +1,4 @@
-use axum::{
-    extract::State,
-    http::StatusCode,
-    routing::post,
-    Json,
-    Router,
-};
+use axum::{Json, Router, extract::State, http::StatusCode, routing::post};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
@@ -15,11 +9,7 @@ mod domain;
 mod infrastructure;
 mod state;
 
-use crate::application::{
-    create_user,
-    login_user,
-    refresh_flow,
-};
+use crate::application::{create_user, login_user, refresh_flow};
 use crate::infrastructure::user_repository::UserRepository;
 use state::AppState;
 
@@ -61,24 +51,12 @@ async fn register(
     State(state): State<AppState>,
     Json(payload): Json<RegisterRequest>,
 ) -> Result<Json<RegisterResponse>, (StatusCode, String)> {
-
     if state.repository.exists(&payload.email) {
-        return Err((
-            StatusCode::CONFLICT,
-            "email already registered".to_string(),
-        ));
+        return Err((StatusCode::CONFLICT, "email already registered".to_string()));
     }
 
-    let user = create_user::execute(
-        payload.email,
-        payload.password,
-    )
-    .map_err(|_| {
-        (
-            StatusCode::BAD_REQUEST,
-            "could not create user".to_string(),
-        )
-    })?;
+    let user = create_user::execute(payload.email, payload.password)
+        .map_err(|_| (StatusCode::BAD_REQUEST, "could not create user".to_string()))?;
 
     state.repository.save(&user);
 
@@ -91,29 +69,15 @@ async fn login(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
 ) -> Result<Json<LoginResponse>, (StatusCode, String)> {
-
     let user = state
         .repository
         .find_by_email(&payload.email)
-        .ok_or((
-            StatusCode::UNAUTHORIZED,
-            "invalid credentials".to_string(),
-        ))?;
+        .ok_or((StatusCode::UNAUTHORIZED, "invalid credentials".to_string()))?;
 
-    let result = login_user::execute(
-        &user,
-        &payload.password,
-    )
-    .map_err(|_| {
-        (
-            StatusCode::UNAUTHORIZED,
-            "invalid credentials".to_string(),
-        )
-    })?;
+    let result = login_user::execute(&user, &payload.password)
+        .map_err(|_| (StatusCode::UNAUTHORIZED, "invalid credentials".to_string()))?;
 
-    state
-        .refresh_store
-        .save(result.refresh_token.clone());
+    state.refresh_store.save(result.refresh_token.clone());
 
     Ok(Json(LoginResponse {
         access_token: result.access_token,
@@ -125,17 +89,13 @@ async fn refresh(
     State(state): State<AppState>,
     Json(payload): Json<RefreshRequest>,
 ) -> Result<Json<RefreshResponse>, (StatusCode, String)> {
-
-    let result = refresh_flow::execute(
-        &state.refresh_store,
-        &payload.refresh_token,
-    )
-    .map_err(|_| {
-        (
-            StatusCode::UNAUTHORIZED,
-            "invalid refresh token".to_string(),
-        )
-    })?;
+    let result =
+        refresh_flow::execute(&state.refresh_store, &payload.refresh_token).map_err(|_| {
+            (
+                StatusCode::UNAUTHORIZED,
+                "invalid refresh token".to_string(),
+            )
+        })?;
 
     Ok(Json(RefreshResponse {
         access_token: result.access_token,
@@ -145,7 +105,6 @@ async fn refresh(
 
 #[tokio::main]
 async fn main() {
-
     let state = AppState::new();
 
     let app = Router::new()
@@ -158,12 +117,7 @@ async fn main() {
 
     println!("Auth running on {}", addr);
 
-    axum::serve(
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .unwrap(),
-        app,
-    )
-    .await
-    .unwrap();
+    axum::serve(tokio::net::TcpListener::bind(addr).await.unwrap(), app)
+        .await
+        .unwrap();
 }

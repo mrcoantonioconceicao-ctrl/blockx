@@ -1,10 +1,7 @@
 use std::sync::Arc;
 
 use crate::infrastructure::{
-    authorization::{
-        permission_repository::PermissionRepository,
-        role_repository::RoleRepository,
-    },
+    authorization::{permission_repository::PermissionRepository, role_repository::RoleRepository},
     in_memory_user_repository::InMemoryUserRepository,
     refresh_token_store::RefreshTokenStore,
 };

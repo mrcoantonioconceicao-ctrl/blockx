@@ -11,10 +11,7 @@ pub struct RolePermission {
 }
 
 impl RolePermission {
-    pub fn new(
-        role_id: Uuid,
-        permission_id: Uuid,
-    ) -> Self {
+    pub fn new(role_id: Uuid, permission_id: Uuid) -> Self {
         Self {
             id: Uuid::new_v4(),
             role_id,

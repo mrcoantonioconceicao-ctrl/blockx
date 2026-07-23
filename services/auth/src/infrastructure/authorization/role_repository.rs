@@ -19,27 +19,14 @@ impl RoleRepository {
     }
 
     pub fn save(&self, role: Role) {
-        self.roles
-            .lock()
-            .unwrap()
-            .insert(role.id, role);
+        self.roles.lock().unwrap().insert(role.id, role);
     }
 
     pub fn find(&self, id: Uuid) -> Option<Role> {
-        self.roles
-            .lock()
-            .unwrap()
-            .get(&id)
-            .cloned()
+        self.roles.lock().unwrap().get(&id).cloned()
     }
 
     pub fn list(&self) -> Vec<Role> {
-        self.roles
-            .lock()
-            .unwrap()
-            .values()
-            .cloned()
-            .collect()
+        self.roles.lock().unwrap().values().cloned().collect()
     }
 }
-

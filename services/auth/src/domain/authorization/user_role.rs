@@ -11,10 +11,7 @@ pub struct UserRole {
 }
 
 impl UserRole {
-    pub fn new(
-        user_id: Uuid,
-        role_id: Uuid,
-    ) -> Self {
+    pub fn new(user_id: Uuid, role_id: Uuid) -> Self {
         Self {
             id: Uuid::new_v4(),
             user_id,

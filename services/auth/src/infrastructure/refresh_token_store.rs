@@ -9,7 +9,6 @@ pub struct RefreshTokenStore {
 }
 
 impl RefreshTokenStore {
-
     pub fn new() -> Self {
         Self {
             active: Mutex::new(HashMap::new()),
@@ -25,29 +24,16 @@ impl RefreshTokenStore {
     }
 
     pub fn get(&self, token: &str) -> Option<RefreshToken> {
-        self.active
-            .lock()
-            .unwrap()
-            .get(token)
-            .cloned()
+        self.active.lock().unwrap().get(token).cloned()
     }
 
     pub fn revoke(&self, token: &str) {
-        self.revoked
-            .lock()
-            .unwrap()
-            .insert(token.to_string());
+        self.revoked.lock().unwrap().insert(token.to_string());
 
-        self.active
-            .lock()
-            .unwrap()
-            .remove(token);
+        self.active.lock().unwrap().remove(token);
     }
 
     pub fn is_revoked(&self, token: &str) -> bool {
-        self.revoked
-            .lock()
-            .unwrap()
-            .contains(token)
+        self.revoked.lock().unwrap().contains(token)
     }
 }
