@@ -1,27 +1,26 @@
 use crate::domain::Journal;
-use crate::infrastructure::journal_repository::JournalRepository;
+use crate::infrastructure::{
+    in_memory_journal_repository::InMemoryJournalRepository, journal_repository::JournalRepository,
+};
+
 use uuid::Uuid;
 
 #[derive(Clone)]
-pub struct JournalService<R>
-where
-    R: JournalRepository + Clone,
-{
-    repository: R,
+pub struct JournalService {
+    repository: InMemoryJournalRepository,
 }
 
-impl<R> JournalService<R>
-where
-    R: JournalRepository + Clone,
-{
-    pub fn new(repository: R) -> Self {
+impl JournalService {
+    pub fn new(repository: InMemoryJournalRepository) -> Self {
         Self { repository }
     }
 
-    pub fn create(&self, journal: Journal) -> Result<(), String> {
+    pub fn create(&self, journal: Journal) -> Result<Journal, String> {
         journal.validate()?;
-        self.repository.save(journal);
-        Ok(())
+
+        self.repository.save(journal.clone());
+
+        Ok(journal)
     }
 
     pub fn list(&self) -> Vec<Journal> {

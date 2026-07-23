@@ -24,7 +24,7 @@ use infrastructure::{
 #[derive(Clone)]
 struct AppState {
     ledger_service: LedgerService<InMemoryLedgerRepository>,
-    journal_service: JournalService<InMemoryJournalRepository>,
+    journal_service: JournalService,
     chart_service: ChartOfAccountsService,
 }
 
@@ -49,8 +49,8 @@ async fn create_journal(
     State(state): State<AppState>,
     Json(journal): Json<Journal>,
 ) -> Result<Json<Journal>, String> {
-    state.journal_service.create(journal.clone())?;
-    Ok(Json(journal))
+    let created = state.journal_service.create(journal)?;
+    Ok(Json(created))
 }
 
 #[debug_handler]
@@ -63,13 +63,12 @@ async fn get_journal(
     Path(id): Path<String>,
     State(state): State<AppState>,
 ) -> Result<Json<Journal>, String> {
-    let uuid = Uuid::parse_str(&id).map_err(|_| "UUID inválido.".to_string())?;
+    let uuid = Uuid::parse_str(&id).map_err(|_| "UUID inválido".to_string())?;
 
-    state
-        .journal_service
-        .find(uuid)
-        .map(Json)
-        .ok_or_else(|| "Journal não encontrado.".to_string())
+    match state.journal_service.find(uuid) {
+        Some(journal) => Ok(Json(journal)),
+        None => Err("Journal não encontrado.".to_string()),
+    }
 }
 
 #[tokio::main]
