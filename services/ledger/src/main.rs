@@ -1,24 +1,21 @@
 use axum::{
-    Json, Router, debug_handler,
+    Json, Router,
     extract::{Path, State},
     routing::{get, post},
 };
 use serde::Serialize;
 use std::net::SocketAddr;
-use uuid::Uuid;
 
-use ledger::{application, domain, infrastructure};
-
-use application::{
-    chart_of_accounts_service::ChartOfAccountsService, journal_service::JournalService,
-    ledger_service::LedgerService,
-};
-
-use domain::{Account, Journal};
-
-use infrastructure::{
-    in_memory_journal_repository::InMemoryJournalRepository,
-    in_memory_ledger_repository::InMemoryLedgerRepository,
+use ledger::{
+    application::{
+        chart_of_accounts_service::ChartOfAccountsService, journal_service::JournalService,
+        ledger_service::LedgerService,
+    },
+    domain::{Account, Journal},
+    infrastructure::{
+        in_memory_journal_repository::InMemoryJournalRepository,
+        in_memory_ledger_repository::InMemoryLedgerRepository,
+    },
 };
 
 #[derive(Clone)]
@@ -34,10 +31,16 @@ struct HealthResponse {
     status: String,
 }
 
+#[derive(Serialize)]
+struct AuditResponse {
+    journals: usize,
+    balanced: bool,
+}
+
 async fn health() -> Json<HealthResponse> {
     Json(HealthResponse {
-        service: "Nexavor Ledger".to_string(),
-        status: "running".to_string(),
+        service: "Nexavor Ledger".into(),
+        status: "running".into(),
     })
 }
 
@@ -45,30 +48,35 @@ async fn list_accounts(State(state): State<AppState>) -> Json<Vec<Account>> {
     Json(state.chart_service.all().into_iter().cloned().collect())
 }
 
-async fn create_journal(
-    State(state): State<AppState>,
-    Json(journal): Json<Journal>,
-) -> Result<Json<Journal>, String> {
-    let created = state.journal_service.create(journal)?;
-    Ok(Json(created))
+async fn create_journal(State(_state): State<AppState>) -> Result<Json<String>, String> {
+    Err("Journal API em desenvolvimento.".into())
 }
 
-#[debug_handler]
 async fn list_journals(State(state): State<AppState>) -> Json<Vec<Journal>> {
     Json(state.journal_service.list())
 }
 
-#[debug_handler]
 async fn get_journal(
     Path(id): Path<String>,
     State(state): State<AppState>,
 ) -> Result<Json<Journal>, String> {
-    let uuid = Uuid::parse_str(&id).map_err(|_| "UUID inválido".to_string())?;
+    let uuid = uuid::Uuid::parse_str(&id).map_err(|_| "UUID inválido".to_string())?;
 
     match state.journal_service.find(uuid) {
         Some(journal) => Ok(Json(journal)),
-        None => Err("Journal não encontrado.".to_string()),
+        None => Err("Journal não encontrado.".into()),
     }
+}
+
+async fn audit_ledger(State(state): State<AppState>) -> Json<AuditResponse> {
+    let journals = state.journal_service.list();
+
+    let balanced = journals.iter().all(|j| j.validate().is_ok());
+
+    Json(AuditResponse {
+        journals: journals.len(),
+        balanced,
+    })
 }
 
 #[tokio::main]
@@ -76,23 +84,19 @@ async fn main() {
     let ledger_repository = InMemoryLedgerRepository::new();
     let journal_repository = InMemoryJournalRepository::new();
 
-    let ledger_service = LedgerService::new(ledger_repository);
-    let journal_service = JournalService::new(journal_repository);
-
-    let chart_service = ChartOfAccountsService::new();
-
     let state = AppState {
-        ledger_service,
-        journal_service,
-        chart_service,
+        ledger_service: LedgerService::new(ledger_repository),
+        journal_service: JournalService::new(journal_repository),
+        chart_service: ChartOfAccountsService::new(),
     };
 
     let app = Router::new()
         .route("/", get(health))
         .route("/accounts", get(list_accounts))
-        .route("/journals", post(create_journal))
         .route("/journals", get(list_journals))
+        .route("/journals", post(create_journal))
         .route("/journals/:id", get(get_journal))
+        .route("/ledger/audit", get(audit_ledger))
         .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 4002));
