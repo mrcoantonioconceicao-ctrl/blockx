@@ -17,6 +17,11 @@ impl InMemoryLedgerRepository {
             entries: Arc::new(Mutex::new(Vec::new())),
         }
     }
+
+    pub fn all(&self) -> Vec<LedgerEntry> {
+        let entries = self.entries.lock().unwrap();
+        entries.clone()
+    }
 }
 
 impl LedgerRepository for InMemoryLedgerRepository {

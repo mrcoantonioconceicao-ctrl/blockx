@@ -3,8 +3,11 @@ use axum::{
     extract::{Path, State},
     routing::{get, post},
 };
+
 use serde::{Deserialize, Serialize};
+
 use std::net::SocketAddr;
+
 use uuid::Uuid;
 
 use ledger::{
@@ -62,6 +65,8 @@ async fn create_journal(
 
     let created = state.journal_service.create(journal)?;
 
+    state.ledger_service.post_journal(&created)?;
+
     Ok(Json(created))
 }
 
@@ -80,7 +85,6 @@ async fn get_journal(
         None => Err("Journal não encontrado.".into()),
     }
 }
-
 async fn audit_ledger(State(state): State<AppState>) -> Json<AuditResponse> {
     let journals = state.journal_service.list();
 
@@ -99,8 +103,10 @@ async fn main() {
     let journal_repository = InMemoryJournalRepository::new();
 
     let state = AppState {
-        ledger_service: LedgerService::new(ledger_repository),
+        ledger_service: LedgerService::new(ledger_repository.clone()),
+
         journal_service: JournalService::new(journal_repository),
+
         chart_service: ChartOfAccountsService::new(),
     };
 
