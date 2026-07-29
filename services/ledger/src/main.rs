@@ -15,7 +15,7 @@ use ledger::{
         chart_of_accounts_service::ChartOfAccountsService, journal_service::JournalService,
         ledger_service::LedgerService,
     },
-    domain::{Account, Journal, JournalEntry},
+    domain::{Account, Journal, JournalEntry, LedgerEntry},
     infrastructure::{
         in_memory_journal_repository::InMemoryJournalRepository,
         in_memory_ledger_repository::InMemoryLedgerRepository,
@@ -85,6 +85,29 @@ async fn get_journal(
         None => Err("Journal não encontrado.".into()),
     }
 }
+
+async fn list_ledger(State(state): State<AppState>) -> Json<Vec<LedgerEntry>> {
+    Json(state.ledger_service.list_all())
+}
+
+async fn get_ledger_entry(
+    Path(id): Path<String>,
+    State(state): State<AppState>,
+) -> Result<Json<LedgerEntry>, String> {
+    let uuid = Uuid::parse_str(&id).map_err(|_| "UUID inválido".to_string())?;
+
+    match state.ledger_service.find_by_id(uuid) {
+        Some(entry) => Ok(Json(entry)),
+        None => Err("Lançamento não encontrado.".into()),
+    }
+}
+
+async fn list_account_entries(
+    Path(account): Path<String>,
+    State(state): State<AppState>,
+) -> Json<Vec<LedgerEntry>> {
+    Json(state.ledger_service.find_by_account(&account))
+}
 async fn audit_ledger(State(state): State<AppState>) -> Json<AuditResponse> {
     let journals = state.journal_service.list();
 
@@ -116,6 +139,9 @@ async fn main() {
         .route("/journals", get(list_journals))
         .route("/journals", post(create_journal))
         .route("/journals/:id", get(get_journal))
+        .route("/ledger", get(list_ledger))
+        .route("/ledger/:id", get(get_ledger_entry))
+        .route("/ledger/account/:account", get(list_account_entries))
         .route("/ledger/audit", get(audit_ledger))
         .with_state(state);
 

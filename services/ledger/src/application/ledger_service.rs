@@ -48,6 +48,21 @@ where
         Ok(())
     }
 
+    /// Retorna todos os lançamentos do Livro Razão.
+    pub fn list_all(&self) -> Vec<LedgerEntry> {
+        self.repository.find_all()
+    }
+
+    /// Retorna todos os lançamentos de uma conta.
+    pub fn find_by_account(&self, account: &str) -> Vec<LedgerEntry> {
+        self.repository.find_by_account(account)
+    }
+
+    /// Busca um lançamento específico pelo ID.
+    pub fn find_by_id(&self, id: Uuid) -> Option<LedgerEntry> {
+        self.repository.find_by_id(id)
+    }
+
     fn validate_accounts(&self, journal: &Journal) -> Result<(), String> {
         let mut accounts = HashSet::<Uuid>::new();
 
